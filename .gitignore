@@ -1,1 +1,57 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.eggs
+
+# Virtual Environment (PENTING: Mencegah commit ribuan paket lokal)
+.venv/
+venv/
+ENV/
+env/
+*.env/
+
+# Environment Secrets & Kredensial (KRUSIAL: Mencegah kebocoran rahasia MongoDB)
+.env
+*.env
+!.env.example
+backend/.env
+frontend/.env
+
+# Data Pipeline Files & Raw Scraper Dumps
+backend/data_pipeline/raw/*.json
+backend/data_pipeline/raw/*.csv
+backend/data_pipeline/processed/*.json
+backend/data_pipeline/processed/*.csv
+*.sqlite3
+
+# IDE & OS Artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
 

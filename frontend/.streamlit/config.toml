@@ -1,0 +1,16 @@
+# config.toml - Konfigurasi Tema Clean Light Mode Streamlit
+# Penanggung Jawab: Orang 4 (Frontend Lead)
+# Lokasi: frontend/.streamlit/config.toml
+[theme]
+primaryColor = "#1d4ed8"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f8fafc"
+textColor = "#0f172a"
+font = "sans serif"
+[server]
+port = 8501
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+[browser]
+gatherUsageStats = false
