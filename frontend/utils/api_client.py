@@ -1,5 +1,5 @@
 # ==============================================================================
-# api_client.py - Klien HTTP Terpusat untuk Komunikasi Backend
+# api_client.py - Klien HTTP Terpusat untuk Komunikasi ke Backend
 # Penanggung Jawab: Orang 4 (Frontend Lead)
 # Lokasi: frontend/utils/api_client.py
 # ==============================================================================
