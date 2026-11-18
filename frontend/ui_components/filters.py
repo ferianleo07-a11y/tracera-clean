@@ -1,5 +1,5 @@
 # ==============================================================================
-# filters.py - Cohort Filters Bar & 4 Borderless KPI Metric Cards (English UI)
+# filters.py - Cohort Filters Bar dan 4 Borderless KPI Metric Cards (English UI)
 # Penanggung Jawab: Orang 4 (Frontend Lead)
 # Lokasi: frontend/ui_components/filters.py
 # ==============================================================================

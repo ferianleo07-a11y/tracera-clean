@@ -1,5 +1,5 @@
 # ==============================================================================
-# headers.py - Komponen Header Bar, Actions & Clipboard Share Link (English UI)
+# headers.py - Komponen Header Bar, Actions dan Clipboard Share Link (English UI)
 # Penanggung Jawab: Orang 4 (Frontend Lead)
 # Lokasi: frontend/ui_components/headers.py
 # Desain Bersih, Proporsional & Minimalis Sesuai Mockup Tracera
