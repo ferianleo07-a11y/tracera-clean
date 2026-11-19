@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pymongo import MongoClient, UpdateOne
 from dotenv import load_dotenv
 
-from backend.crud.skill_cleaner import normalize_skill, clean_job_title
+from backend.crud.skill_cleaner import normalize_skill, clean_job_title, normalize_target_role
 
 load_dotenv()
 
@@ -89,7 +89,7 @@ def parse_and_clean_document(doc):
         'industry': ind_clean,
         'universities': universities if universities else ['Universitas Gadjah Mada'],
         'study_programs': study_programs if study_programs else ['All Study Programs'],
-        'target_role': experiences[0]['title'] if experiences else 'Software Engineer / Tech Roles',
+        'target_role': normalize_target_role(experiences[0]['title']) if experiences else 'Software Engineer',
         'fetched_at': fetched_dt,
         'skills': list(skill_map.values()),
         'experiences': experiences,

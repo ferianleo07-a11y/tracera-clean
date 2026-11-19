@@ -28,6 +28,7 @@ SKILL_TRANSLATIONS = {
     'analisis data': 'Data Analysis',
     'analisa data': 'Data Analysis',
     'analisis': 'Data Analysis',
+    'analitik data': 'Data Analytics',
     'data analysis': 'Data Analysis',
     'analisis bisnis': 'Business Analysis',
     'business analysis': 'Business Analysis',
@@ -340,3 +341,56 @@ def clean_job_title(title: str) -> str:
     if len(t) < 3 or len(t) > 42:
         return ''
     return t
+
+ROLE_TRANSLATIONS = {
+    'software engineer / tech roles': 'Software Engineer',
+    'software engineer': 'Software Engineer',
+    'analis data': 'Data Analyst',
+    'data analyst': 'Data Analyst',
+    'staff of data scientist': 'Data Scientist',
+    'desainer grafis': 'Graphic Designer',
+    'guru': 'Teacher',
+    'pelajar': 'Student',
+    'asisten laboratorium': 'Laboratory Assistant',
+    'asisten dosen': 'Teaching Assistant',
+    'asisten penjahit': 'Tailoring Assistant',
+    'admin keuangan': 'Finance Administrator',
+    'pengelola keuangan dan anggaran': 'Finance & Budget Officer',
+    'tenaga administrasi': 'Administrative Staff',
+    'kepala tata usaha': 'Head of Administration',
+    'geologi minyak bumi assistant': 'Petroleum Geology Assistant',
+    'asisten administrasi underwriting': 'Underwriting Administration Assistant',
+    'staf consultant': 'Consultant',
+    'sales marketing': 'Sales & Marketing',
+    'sales marketing positions': 'Sales & Marketing',
+    'staff of education': 'Education Staff',
+    'sekretariat': 'Secretariat',
+    'mpk sma n 3 boyolali': 'Student Council Committee',
+    'outlet head setir kanan store surabaya': 'Retail Store Manager',
+    'private tutor (fisika matematika kimia)': 'Science & Math Tutor',
+    'pvc foam sheets,pvc pipes,polymer pipes': 'Manufacturing & Operations Specialist',
+    'finance staff': 'Finance Staff',
+    'junior staff accounting': 'Junior Accounting Staff',
+    'staff accountant and finance': 'Accounting & Finance Staff',
+    'staff tax accountant': 'Tax Accountant Staff',
+    'fresh graduate in geological engineering': 'Geological Engineer (Fresh Graduate)',
+    'spv mine plan engineer': 'Mining Plan Supervisor',
+    'tc assistant (organic)': 'Technical Assistant',
+    'kol specialist': 'KOL Specialist',
+    'senior ios developer': 'Senior iOS Developer',
+    'e-board': 'Executive Board',
+    'creative': 'Creative Designer',
+    'video production': 'Video Producer',
+    'staff': 'General Staff',
+    '': 'Software Engineer'
+}
+
+def normalize_target_role(title: str) -> str:
+    """Menormalisasi target role ke format standar bahasa Inggris kanonikal."""
+    if not title or not isinstance(title, str):
+        return 'Software Engineer'
+    t_clean = clean_job_title(title)
+    if not t_clean:
+        return 'Software Engineer'
+    low = t_clean.strip().lower()
+    return ROLE_TRANSLATIONS.get(low, t_clean)

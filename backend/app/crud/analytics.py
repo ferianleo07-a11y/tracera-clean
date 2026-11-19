@@ -95,8 +95,10 @@ def build_filter_query(
         q['study_programs'] = study_program
     if target_role and target_role.lower() not in ['all', 'semua']:
         t_low = target_role.lower().strip()
-        if t_low in ['software engineer / tech roles', 'software engineer', 'tech roles']:
-            q['target_role'] = {'$regex': r'software|developer|engineer|programmer|architect|devops|backend|frontend', '$options': 'i'}
+        if t_low in ['software engineer', 'software engineer / tech roles', 'tech roles']:
+            q['target_role'] = {'$regex': r'software|developer|programmer|architect|devops|backend|frontend', '$options': 'i'}
+        elif t_low in ['data analyst', 'analis data']:
+            q['target_role'] = {'$regex': r'data analyst|analis data', '$options': 'i'}
         else:
             q['target_role'] = target_role
     if industry and industry.lower() not in ['all', 'semua', '']:
