@@ -394,3 +394,236 @@ def normalize_target_role(title: str) -> str:
         return 'Software Engineer'
     low = t_clean.strip().lower()
     return ROLE_TRANSLATIONS.get(low, t_clean)
+
+# ==============================================================================
+# 4. NORMALISASI & PEMETAAN KAMPUS (UNIVERSITY STANDAR TRACERA & NASIONAL)
+# ==============================================================================
+HIGH_SCHOOL_PATTERNS = [
+    r'\bsma\b', r'\bsmkn?\b', r'\bsmp\b', r'\bmadrasah\b', r'\bhigh school\b', r'\bsecondary\b', 
+    r'\bmiddle school\b', r'\belementary\b', r'\bschool at\b', r'\btraining center\b', r'\bblk\b',
+    r'\bacamedy\b', r'\bacademies\b'
+]
+
+UNIVERSITY_MAPPINGS = [
+    # --- Tracera Big 6 (Top Canonical) ---
+    ("Universitas Gadjah Mada", [
+        r'gadjah mada', r'\bugm\b', r'sekolah vokasi.*gadjah mada'
+    ]),
+    ("Universitas Indonesia", [
+        r'universitas indonesia', r'university of indonesia', r'\bui\b'
+    ]),
+    ("Institut Teknologi Bandung", [
+        r'institut teknologi bandung', r'bandung institute of technology', r'\bitb\b'
+    ]),
+    ("Institut Teknologi Sepuluh Nopember", [
+        r'sepuluh nopember', r'\bits\b'
+    ]),
+    ("Universitas Airlangga", [
+        r'airlangga', r'\bunair\b'
+    ]),
+    ("BINUS University", [
+        r'binus', r'bina nusantara'
+    ]),
+
+    # --- Other Major Indonesian Universities ---
+    ("Universitas Pembangunan Nasional Veteran Yogyakarta", [
+        r'pembangunan nasional veteran yogyakarta', r'upn.*veteran.*yogyakarta', r'upnvy'
+    ]),
+    ("Universitas Pembangunan Nasional Veteran Jawa Timur", [
+        r'pembangunan nasional veteran jawa timur', r'upn.*veteran.*jawa timur', r'upn.*jatim'
+    ]),
+    ("Universitas Diponegoro", [
+        r'diponegoro', r'\bundip\b'
+    ]),
+    ("IPB University", [
+        r'ipb', r'institut pertanian bogor', r'bogor agricultural'
+    ]),
+    ("Universitas Brawijaya", [
+        r'brawijaya', r'\bub\b'
+    ]),
+    ("Universitas Padjadjaran", [
+        r'padjadjaran', r'\bunpad\b'
+    ]),
+    ("Universitas Negeri Malang", [
+        r'negeri malang', r'state university of malang'
+    ]),
+    ("Universitas Negeri Yogyakarta", [
+        r'negeri yogyakarta', r'yogyakarta state university', r'\buny\b'
+    ]),
+    ("Universitas Negeri Semarang", [
+        r'negeri semarang', r'\bunnes\b'
+    ]),
+    ("Universitas Negeri Jakarta", [
+        r'negeri jakarta', r'\bunj\b'
+    ]),
+    ("Universitas Pendidikan Indonesia", [
+        r'pendidikan indonesia', r'\bupi\b'
+    ]),
+    ("Universitas Terbuka", [
+        r'universitas terbuka', r'indonesia open university', r'\but\b'
+    ]),
+    ("Universitas Gunadarma", [
+        r'gunadarma'
+    ]),
+    ("Universitas Mercu Buana", [
+        r'mercu buana'
+    ]),
+    ("Universitas Andalas", [
+        r'andalas', r'\bunand\b'
+    ]),
+    ("Universitas Sriwijaya", [
+        r'sriwijaya', r'\bunsri\b'
+    ]),
+    ("Universitas Lampung", [
+        r'universitas lampung', r'\bunila\b'
+    ]),
+    ("Universitas Mulawarman", [
+        r'mulawarman', r'\bunmul\b'
+    ]),
+    ("Universitas Islam Indonesia", [
+        r'islam indonesia', r'\buii\b'
+    ]),
+    ("Universitas Sebelas Maret", [
+        r'sebelas maret', r'\buns\b'
+    ]),
+    ("Universitas Jenderal Soedirman", [
+        r'jenderal soedirman', r'\bunsoed\b'
+    ]),
+    ("Universitas Sumatera Utara", [
+        r'sumatera utara', r'\busu\b'
+    ]),
+    ("Universitas Hasanuddin", [
+        r'hasanuddin', r'\bunhas\b'
+    ]),
+    ("Universitas Riau", [
+        r'university of riau', r'universitas riau', r'\bunri\b'
+    ]),
+    ("Universitas Telkom", [
+        r'telkom university', r'universitas telkom'
+    ]),
+    ("Universitas Katolik Parahyangan", [
+        r'parahyangan', r'\bunpar\b'
+    ]),
+    ("Universitas Katolik Indonesia Atma Jaya", [
+        r'atma jaya'
+    ]),
+    ("Universitas Muhammadiyah Malang", [
+        r'muhammadiyah malang', r'\bumm\b'
+    ]),
+    ("Universitas Muhammadiyah Yogyakarta", [
+        r'muhammadiyah yogyakarta', r'\bumy\b'
+    ]),
+    ("Universitas Muhammadiyah Surakarta", [
+        r'muhammadiyah surakarta', r'\bums\b'
+    ]),
+    ("Universitas Pertamina", [
+        r'universitas pertamina'
+    ]),
+    ("Universitas Pakuan", [
+        r'pakuan'
+    ]),
+    ("Universitas Pamulang", [
+        r'pamulang', r'\bunpam\b'
+    ]),
+    ("Universitas Esa Unggul", [
+        r'esa unggul'
+    ]),
+    ("Universitas Tarumanagara", [
+        r'tarumanagara', r'\buntar\b'
+    ]),
+    ("Universitas Pelita Harapan", [
+        r'pelita harapan', r'\buph\b'
+    ]),
+    ("Universitas Trisakti", [
+        r'trisakti'
+    ]),
+    ("Universitas Bung Hatta", [
+        r'bung hatta'
+    ]),
+    ("Universitas Sultan Ageng Tirtayasa", [
+        r'sultan ageng tirtayasa', r'\buntirta\b'
+    ]),
+    ("UIN Syarif Hidayatullah Jakarta", [
+        r'syarif hidayatullah', r'uin jakarta', r'islam negeri jakarta'
+    ]),
+    ("UIN Sunan Gunung Djati Bandung", [
+        r'sunan gunung djati', r'islam negeri bandung', r'uin bandung'
+    ]),
+    ("UIN Sunan Kalijaga Yogyakarta", [
+        r'sunan kalijaga', r'uin yogyakarta'
+    ]),
+    ("UIN Raden Intan Lampung", [
+        r'raden intan'
+    ]),
+    ("Institut Teknologi Sumatera", [
+        r'teknologi sumatera', r'\bitera\b'
+    ]),
+    ("Institut Teknologi Medan", [
+        r'teknologi medan', r'\bitm\b'
+    ]),
+    ("Politeknik Negeri Jakarta", [
+        r'politeknik negeri jakarta', r'\bpnj\b'
+    ]),
+    ("Politeknik Negeri Bandung", [
+        r'politeknik negeri bandung', r'\bpolban\b'
+    ]),
+    ("Politeknik Negeri Batam", [
+        r'polytechnic of batam', r'politeknik negeri batam'
+    ]),
+    ("Politeknik Negeri Padang", [
+        r'politeknik negeri padang'
+    ]),
+    ("Politeknik Caltex Riau", [
+        r'caltex riau', r'\bpcr\b'
+    ]),
+
+    # --- International Universities ---
+    ("Columbia University", [r'columbia university']),
+    ("Carnegie Mellon University", [r'carnegie mellon']),
+    ("Johns Hopkins University", [r'johns hopkins']),
+    ("Imperial College London", [r'imperial college']),
+    ("Cornell University", [r'cornell']),
+    ("University of Maryland", [r'university of maryland']),
+    ("University of San Diego", [r'university of san diego']),
+    ("University of Missouri-Kansas City", [r'missouri-kansas city', r'umkc']),
+    ("University of Bradford", [r'university of bradford']),
+    ("Curtin University", [r'curtin university']),
+    ("RMIT University", [r'rmit']),
+    ("University of New South Wales (UNSW)", [r'\bunsw\b', r'new south wales']),
+    ("Universiti Teknologi PETRONAS", [r'teknologi petronas', r'\butp\b']),
+    ("Nazarbayev University", [r'nazarbayev']),
+    ("Ben-Gurion University of the Negev", [r'ben-gurion']),
+    ("King Fahd University of Petroleum & Minerals", [r'king fahd']),
+    ("Towson University", [r'towson university']),
+    ("Woosong University", [r'woosong university'])
+]
+
+def is_high_school(name: str) -> bool:
+    n = name.lower()
+    return any(re.search(p, n) for p in HIGH_SCHOOL_PATTERNS)
+
+def normalize_single_university(name: str) -> str:
+    if not name or not isinstance(name, str):
+        return ""
+    name_clean = name.strip()
+    if not name_clean or is_high_school(name_clean):
+        return ""
+    
+    n_low = name_clean.lower()
+    for canonical, patterns in UNIVERSITY_MAPPINGS:
+        if any(re.search(p, n_low) for p in patterns):
+            return canonical
+            
+    # Clean up trailing parentheses like "(...)" if it has acronym
+    cleaned = re.sub(r'\s*\([A-Z0-9\s-]+\)$', '', name_clean).strip()
+    return cleaned if len(cleaned) > 3 else name_clean
+
+def clean_universities(raw_list):
+    if not raw_list:
+        return ['Universitas Gadjah Mada']
+    cleaned = []
+    for u in raw_list:
+        norm = normalize_single_university(u)
+        if norm and norm not in cleaned:
+            cleaned.append(norm)
+    return cleaned if cleaned else ['Universitas Gadjah Mada']

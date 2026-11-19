@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pymongo import MongoClient, UpdateOne
 from dotenv import load_dotenv
 
-from backend.crud.skill_cleaner import normalize_skill, clean_job_title, normalize_target_role
+from backend.crud.skill_cleaner import normalize_skill, clean_job_title, normalize_target_role, clean_universities
 
 load_dotenv()
 
@@ -69,20 +69,20 @@ def parse_and_clean_document(doc):
             if key not in skill_map:
                 skill_map[key] = {'name': s_norm, 'endorsements': 0}
 
-    universities = []
+    raw_schools = []
     study_programs = []
     for edu in p.get('education', []):
         school = edu.get('schoolName')
         if school and isinstance(school, str) and school.strip():
-            sc_clean = school.strip()
-            if sc_clean not in universities:
-                universities.append(sc_clean)
+            raw_schools.append(school.strip())
         fos = edu.get('fieldOfStudy')
         if fos and isinstance(fos, str):
             fos_clean = fos.strip()
             if len(fos_clean) > 2 and fos_clean.lower() not in ['-', '.', '...', 'null', 'none']:
                 if fos_clean not in study_programs:
                     study_programs.append(fos_clean)
+
+    universities = clean_universities(raw_schools)
 
     return {
         'public_identifier': pid.strip(),

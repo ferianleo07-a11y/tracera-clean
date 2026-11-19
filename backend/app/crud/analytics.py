@@ -114,8 +114,21 @@ async def get_filter_options(db: AsyncIOMotorDatabase) -> Dict[str, List[str]]:
     progs = await coll.distinct('study_programs')
     roles = await coll.distinct('target_role')
     inds = ["Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"]
+
+    # 6 Kampus Standar Utama Tracera diposisikan di paling atas, diikuti seluruh kampus lain secara alfabetis
+    canonical_unis = [
+        "Universitas Gadjah Mada",
+        "Universitas Indonesia",
+        "Institut Teknologi Bandung",
+        "Institut Teknologi Sepuluh Nopember",
+        "Universitas Airlangga",
+        "BINUS University"
+    ]
+    other_unis = sorted([u for u in unis if u and u not in canonical_unis])
+    ordered_unis = [u for u in canonical_unis if u in unis] + other_unis
+
     return {
-        'universities': sorted([u for u in unis if u]),
+        'universities': ordered_unis,
         'study_programs': sorted([p for p in progs if p]),
         'target_roles': sorted([r for r in roles if r]),
         'industries': inds,
