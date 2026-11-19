@@ -41,7 +41,7 @@ class APIClient:
             params["university"] = university
         if study_program and study_program not in ["All", "All Study Programs"]:
             params["study_program"] = study_program
-        if target_role and target_role not in ["All", "Software Engineer / Tech Roles"]:
+        if target_role and target_role != "All":
             params["target_role"] = target_role
         if industry and industry != "All":
             params["industry"] = industry
@@ -61,7 +61,7 @@ class APIClient:
         params = {"universities": unis_param}
         if study_program and study_program not in ["All", "All Study Programs"]:
             params["study_program"] = study_program
-        if target_role and target_role not in ["All", "Software Engineer / Tech Roles"]:
+        if target_role and target_role != "All":
             params["target_role"] = target_role
         if industry and industry != "All":
             params["industry"] = industry
