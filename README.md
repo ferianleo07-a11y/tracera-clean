@@ -8,15 +8,16 @@ Antarmuka dashboard (UI) disajikan dalam standar bahasa Inggris profesional (Cle
 1. **Data Ingestion**: Scraper mengekstraksi profil alumni mentah dari LinkedIn ke MongoDB Atlas koleksi `raw_linkedin`.
 2. **Data Cleansing**: Batch cleaner membersihkan noise jabatan, memvalidasi rentang tahun (1980–2027), mengekstrak nama universitas, dan melakukan upsert ke koleksi terindeks `profiles_db`.
 3. **Skill Normalization**: Pemetaan 150+ keahlian bilingual (Indo -&gt; Eng) serta taksonomi resmi 35+ Soft Skills kanonikal.
-4. **Analytics Engine**: Perhitungan 4 metrik KPI, dual progress bar Hard vs Soft Skills, stacked bar 4 kategori keahlian, graf jejaring ko-okurensi NetworkX, analisis kesenjangan pasar (Mark
-   et Gap), serta modul komparasi multi-universitas (Skills Comparison).
+4. **Analytics Engine**: Perhitungan 4 metrik KPI, dual progress bar Hard vs Soft Skills, stacked bar 4 kategori keahlian, graf jejaring ko-okurensi NetworkX, analisis kesenjangan pasar (Market Gap), serta modul komparasi multi-universitas (Skills Comparison).
 5. **REST API**: Endpoint FastAPI asinkron terproteksi header otorisasi `X-API-KEY`.
-6. **Frontend Dashboard**: Antarmuka Streamlit Clean Light Mode dengan visualisasi Plotly interaktif, 3 Tab (Skills Explorer, Skills Comparison, Skill Details), Sub-view Toggle (Ranking vs Ec
-   osystem), Reset, Export CSV, dan Share View copy link.
+6. **Frontend Dashboard**: Antarmuka Streamlit Clean Light Mode dengan visualisasi Plotly interaktif, 3 Tab (Skills Explorer, Skills Comparison, Skill Details), Sub-view Toggle (Ranking vs Ecosystem), Reset, Export CSV, dan Share View copy link.
 
 ## Pembagian Peran Anggota Tim
 
+- **Orang 1 (Data Engineer & Data Cleaning)**: Koneksi & ekstraksi `database_connection.py`, `clean_raw_data.py`, `skill_cleaner.py`, `database.py` & models.
+- **Orang 2 (Data Analyst ‐ Pilar 1, 2, 3 Analyst)**: DTO response, agregasi MongoDB analitik, formula market gap & visualizer chart Plotly/Tab 2.
 - **Orang 3 (Backend Lead)**: Arsitektur REST API FastAPI, APIRouter endpoints, middleware keamanan, Pydantic settings, dan server lifespan.
+- **Orang 4 (Frontend Lead)**: Proteksi Git, HTTP client caching, shell UI Streamlit (header, filter, card KPI), dan orkestrasi 3 Tab `app.py`.
 
 ## Panduan Cepat Menjalankan Sistem
 
