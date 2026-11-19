@@ -4,6 +4,7 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from backend.app.core.database import get_database
+from backend.app.core.config import settings
 from backend.app.core.security import verify_api_key
 from backend.app.schemas.analytics import (
     FullDashboardResponse, FilterOptionsResponse, KPIMetricsResponse,
@@ -37,11 +38,22 @@ async def get_full_dashboard(
 ):
     """Endpoint utama pengambil seluruh data dashboard secara terpadu."""
     query = build_filter_query(university, study_program, target_role, industry)
-    kpi = await calculate_kpi_metrics(db, query)
-    hard_soft = await analyze_hard_vs_soft_skills(db, query)
-    skills_dist = await analyze_skills_distribution_by_category(db, query)
-    network = await analyze_skill_network(db, query)
-    trending_gap = await analyze_trending_gap(db, query)
+    coll = db[settings.PROCESSED_COLLECTION_NAME]
+    proj = {
+        "skills": 1,
+        "universities": 1,
+        "study_programs": 1,
+        "target_role": 1,
+        "industry": 1,
+        "latest_work_year": 1
+    }
+    docs = await coll.find(query, proj).to_list(length=10000)
+
+    kpi = await calculate_kpi_metrics(db, query, docs=docs)
+    hard_soft = await analyze_hard_vs_soft_skills(db, query, docs=docs)
+    skills_dist = await analyze_skills_distribution_by_category(db, query, docs=docs)
+    network = await analyze_skill_network(db, query, docs=docs)
+    trending_gap = await analyze_trending_gap(db, query, docs=docs)
     return FullDashboardResponse(
         kpi=KPIMetricsResponse(**kpi),
         hard_soft_skills=HardSoftSkillsResponse(**hard_soft),

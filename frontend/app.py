@@ -72,10 +72,10 @@ with st.sidebar:
 def main():
     # 4. Ambil data dropdown filter & payload dashboard terpusat dari FastAPI
     filter_opts = api_client.fetch_filter_options()
-    uni = st.session_state.get("filter_uni", "All")
-    prog = st.session_state.get("filter_prog", "All Study Programs")
-    role = st.session_state.get("filter_role", "All")
-    ind = st.session_state.get("filter_ind", "All")
+    uni = st.session_state.get("sel_uni", "All")
+    prog = st.session_state.get("sel_prog", "All Study Programs")
+    role = st.session_state.get("sel_role", "All")
+    ind = st.session_state.get("sel_ind", "All")
 
     dashboard_data, is_conn = api_client.fetch_dashboard_data(uni, prog, role, ind)
 

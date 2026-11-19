@@ -7,14 +7,14 @@ import streamlit as st
 
 def render_cohort_filters(filter_options):
     """Render Cohort Filters Bar: Dropdowns and Reset Filters (English)."""
-    if "filter_uni" not in st.session_state:
-        st.session_state["filter_uni"] = st.query_params.get("uni", "All")
-    if "filter_prog" not in st.session_state:
-        st.session_state["filter_prog"] = st.query_params.get("prog", "All Study Programs")
-    if "filter_role" not in st.session_state:
-        st.session_state["filter_role"] = st.query_params.get("role", "All")
-    if "filter_ind" not in st.session_state:
-        st.session_state["filter_ind"] = st.query_params.get("ind", "All")
+    if "sel_uni" not in st.session_state:
+        st.session_state["sel_uni"] = st.query_params.get("uni", "All")
+    if "sel_prog" not in st.session_state:
+        st.session_state["sel_prog"] = st.query_params.get("prog", "All Study Programs")
+    if "sel_role" not in st.session_state:
+        st.session_state["sel_role"] = st.query_params.get("role", "All")
+    if "sel_ind" not in st.session_state:
+        st.session_state["sel_ind"] = st.query_params.get("ind", "All")
     c_filt_head, c_reset_filt = st.columns([8, 2], vertical_alignment="center")
     with c_filt_head:
         st.markdown(
@@ -27,10 +27,10 @@ def render_cohort_filters(filter_options):
         )
     with c_reset_filt:
         if st.button("Reset filters", key="btn_reset_filters_only", help="Reset cohort filters to All"):
-            st.session_state["filter_uni"] = "All"
-            st.session_state["filter_prog"] = "All Study Programs"
-            st.session_state["filter_role"] = "All"
-            st.session_state["filter_ind"] = "All"
+            st.session_state["sel_uni"] = "All"
+            st.session_state["sel_prog"] = "All Study Programs"
+            st.session_state["sel_role"] = "All"
+            st.session_state["sel_ind"] = "All"
             st.query_params.clear()
             st.rerun()
 
@@ -38,15 +38,15 @@ def render_cohort_filters(filter_options):
     unis = ["All"] + [u for u in filter_options.get("universities", []) if u != "All"]
     progs = ["All Study Programs"] + [p for p in filter_options.get("study_programs", []) if p not in ["All", "All Study Programs"]]
     roles = ["All", "Software Engineer / Tech Roles"] + [r for r in filter_options.get("target_roles", []) if r not in ["All", "Software Engineer / Tech Roles"]]
-    idx_uni = unis.index(st.session_state["filter_uni"]) if st.session_state["filter_uni"] in unis else 0
-    idx_prog = progs.index(st.session_state["filter_prog"]) if st.session_state["filter_prog"] in progs else 0
-    idx_role = roles.index(st.session_state["filter_role"]) if st.session_state["filter_role"] in roles else 0
+    idx_uni = unis.index(st.session_state["sel_uni"]) if st.session_state["sel_uni"] in unis else 0
+    idx_prog = progs.index(st.session_state["sel_prog"]) if st.session_state["sel_prog"] in progs else 0
+    idx_role = roles.index(st.session_state["sel_role"]) if st.session_state["sel_role"] in roles else 0
     with c1:
-        st.session_state["filter_uni"] = st.selectbox("University", unis, index=idx_uni, key="sel_uni")
+        st.selectbox("University", unis, index=idx_uni, key="sel_uni")
     with c2:
-        st.session_state["filter_prog"] = st.selectbox("Study program", progs, index=idx_prog, key="sel_prog")
+        st.selectbox("Study program", progs, index=idx_prog, key="sel_prog")
     with c3:
-        st.session_state["filter_role"] = st.selectbox("Target role", roles, index=idx_role, key="sel_role")
+        st.selectbox("Target role", roles, index=idx_role, key="sel_role")
     with st.expander("+ More filters", expanded=True):
         m1, m2, m3, m4, m5 = st.columns(5)
         with m1:
@@ -55,8 +55,8 @@ def render_cohort_filters(filter_options):
             st.selectbox("Starting role", ["All", "Junior Developer", "Intern", "Analyst"], key="filter_start")
         with m3:
             inds = ["All", "Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"]
-            idx_ind = inds.index(st.session_state["filter_ind"]) if st.session_state["filter_ind"] in inds else 0
-            st.session_state["filter_ind"] = st.selectbox("Industry", inds, index=idx_ind, key="sel_ind")
+            idx_ind = inds.index(st.session_state["sel_ind"]) if st.session_state["sel_ind"] in inds else 0
+            st.selectbox("Industry", inds, index=idx_ind, key="sel_ind")
         with m4:
             st.selectbox("Career level", ["Mid-Senior", "Entry-Level", "Executive", "All"], key="filter_lvl")
         with m5:

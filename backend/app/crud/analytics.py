@@ -117,10 +117,15 @@ async def get_filter_options(db: AsyncIOMotorDatabase) -> Dict[str, List[str]]:
         'locations': ["All", "Indonesia", "Singapore", "Remote"]
     }
 
-async def calculate_kpi_metrics(db: AsyncIOMotorDatabase, filter_query: Dict[str, Any]) -> Dict[str, Any]:
+async def calculate_kpi_metrics(
+    db: AsyncIOMotorDatabase,
+    filter_query: Dict[str, Any],
+    docs: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """Perhitungan 4 Metrik KPI Dinamis Sesuai Tabel 3 Kode IPYNB."""
-    coll = db[settings.PROCESSED_COLLECTION_NAME]
-    docs = await coll.find(filter_query).to_list(length=10000)
+    if docs is None:
+        coll = db[settings.PROCESSED_COLLECTION_NAME]
+        docs = await coll.find(filter_query).to_list(length=10000)
     if not docs:
         return {
             'matched_alumni': 240, 'total_unique_skills': 2850,
@@ -163,42 +168,79 @@ async def calculate_kpi_metrics(db: AsyncIOMotorDatabase, filter_query: Dict[str
         'top_endorsed_skills': 740
     }
 
-async def analyze_hard_vs_soft_skills(db: AsyncIOMotorDatabase, filter_query: Dict[str, Any], top_n: int = 6) -> Dict[str, Any]:
+async def analyze_hard_vs_soft_skills(
+    db: AsyncIOMotorDatabase,
+    filter_query: Dict[str, Any],
+    top_n: int = 6,
+    docs: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """Agregasi Dinamis Top Hard vs Soft Skills dari Database Sesuai Tabel 4 IPYNB."""
-    coll = db[settings.PROCESSED_COLLECTION_NAME]
-    pipeline = [
-        {"$match": filter_query},
-        {"$unwind": "$skills"},
-        {"$group": {
-            "_id": "$skills.name",
-            "count": {"$sum": 1},
-            "endorsements": {"$sum": "$skills.endorsements"}
-        }},
-        {"$sort": {"count": -1}}
-    ]
-    cursor = coll.aggregate(pipeline)
-    total_profiles = await coll.count_documents(filter_query) or 240
     hard_items, soft_items = [], []
-    async for doc in cursor:
-        name = doc["_id"]
-        cnt = doc["count"]
-        end = doc.get("endorsements", 0)
-        pct = round((cnt / total_profiles) * 100, 1)
-        if is_soft_skill(name):
-            if len(soft_items) < top_n:
-                badge = "[Universal ★★★]" if pct >= 70 else "[High ★★]"
-                soft_items.append({
-                    "rank": len(soft_items) + 1, "skill_name": name, "count": cnt,
-                    "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": "#10b981"
-                })
-        else:
-            if len(hard_items) < top_n:
-                badge = "[Demand: ★★★]" if pct >= 60 else ("[Deficit ��]" if "Architect" in name else "[Demand: ★★]")
-                color = "#ef4444" if "Deficit" in badge else "#1d4ed8"
-                hard_items.append({
-                    "rank": len(hard_items) + 1, "skill_name": name, "count": cnt,
-                    "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": color
-                })
+    if docs is not None:
+        total_profiles = len(docs) or 240
+        skill_counts = Counter()
+        skill_endorsements = Counter()
+        for d in docs:
+            for s in d.get("skills", []):
+                if isinstance(s, dict):
+                    name = s.get("name")
+                    if name:
+                        skill_counts[name] += 1
+                        skill_endorsements[name] += s.get("endorsements", 0)
+        for name, cnt in skill_counts.most_common():
+            end = skill_endorsements.get(name, 0)
+            pct = round((cnt / total_profiles) * 100, 1)
+            if is_soft_skill(name):
+                if len(soft_items) < top_n:
+                    badge = "[Universal ★★★]" if pct >= 70 else "[High ★★]"
+                    soft_items.append({
+                        "rank": len(soft_items) + 1, "skill_name": name, "count": cnt,
+                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": "#10b981"
+                    })
+            else:
+                if len(hard_items) < top_n:
+                    badge = "[Demand: ★★★]" if pct >= 60 else ("[Deficit]" if "Architect" in name else "[Demand: ★★]")
+                    color = "#ef4444" if "Deficit" in badge else "#1d4ed8"
+                    hard_items.append({
+                        "rank": len(hard_items) + 1, "skill_name": name, "count": cnt,
+                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": color
+                    })
+            if len(hard_items) >= top_n and len(soft_items) >= top_n:
+                break
+    else:
+        coll = db[settings.PROCESSED_COLLECTION_NAME]
+        pipeline = [
+            {"$match": filter_query},
+            {"$unwind": "$skills"},
+            {"$group": {
+                "_id": "$skills.name",
+                "count": {"$sum": 1},
+                "endorsements": {"$sum": "$skills.endorsements"}
+            }},
+            {"$sort": {"count": -1}}
+        ]
+        cursor = coll.aggregate(pipeline)
+        total_profiles = await coll.count_documents(filter_query) or 240
+        async for doc in cursor:
+            name = doc["_id"]
+            cnt = doc["count"]
+            end = doc.get("endorsements", 0)
+            pct = round((cnt / total_profiles) * 100, 1)
+            if is_soft_skill(name):
+                if len(soft_items) < top_n:
+                    badge = "[Universal ★★★]" if pct >= 70 else "[High ★★]"
+                    soft_items.append({
+                        "rank": len(soft_items) + 1, "skill_name": name, "count": cnt,
+                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": "#10b981"
+                    })
+            else:
+                if len(hard_items) < top_n:
+                    badge = "[Demand: ★★★]" if pct >= 60 else ("[Deficit ��]" if "Architect" in name else "[Demand: ★★]")
+                    color = "#ef4444" if "Deficit" in badge else "#1d4ed8"
+                    hard_items.append({
+                        "rank": len(hard_items) + 1, "skill_name": name, "count": cnt,
+                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": color
+                    })
     if not hard_items:
         hard_items = [
             {"rank": 1, "skill_name": "Python Programming", "count": 182, "percentage": 75.8, "endorsements": 740, "demand_badge": "[Demand: ★★★]", "bar_color": "#1d4ed8"},
@@ -224,10 +266,15 @@ async def analyze_hard_vs_soft_skills(db: AsyncIOMotorDatabase, filter_query: Di
         "soft_summary": "28% of skill ecosystem (Average 3.2 per profile)"
     }
 
-async def analyze_skills_distribution_by_category(db: AsyncIOMotorDatabase, filter_query: Dict[str, Any]) -> Dict[str, Any]:
+async def analyze_skills_distribution_by_category(
+    db: AsyncIOMotorDatabase,
+    filter_query: Dict[str, Any],
+    docs: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """Distribusi 4 Kategori Keahlian Dinamis Sesuai Tabel 4 IPYNB."""
-    coll = db[settings.PROCESSED_COLLECTION_NAME]
-    docs = await coll.find(filter_query).to_list(length=5000)
+    if docs is None:
+        coll = db[settings.PROCESSED_COLLECTION_NAME]
+        docs = await coll.find(filter_query).to_list(length=5000)
     cat_counts = Counter()
     subcat_counts = {}
     for d in docs:
@@ -254,10 +301,16 @@ async def analyze_skills_distribution_by_category(db: AsyncIOMotorDatabase, filt
         })
     return {"categories": categories, "total_skills_count": total_all}
 
-async def analyze_skill_network(db: AsyncIOMotorDatabase, filter_query: Dict[str, Any], top_n: int = 10) -> Dict[str, Any]:
+async def analyze_skill_network(
+    db: AsyncIOMotorDatabase,
+    filter_query: Dict[str, Any],
+    top_n: int = 10,
+    docs: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """Graf Jejaring Co-occurrence Dinamis Sesuai Tabel 6 IPYNB."""
-    coll = db[settings.PROCESSED_COLLECTION_NAME]
-    docs = await coll.find(filter_query).to_list(length=3000)
+    if docs is None:
+        coll = db[settings.PROCESSED_COLLECTION_NAME]
+        docs = await coll.find(filter_query).to_list(length=3000)
     skill_freq = Counter()
     pair_freq = Counter()
     for d in docs:
@@ -309,10 +362,15 @@ async def analyze_skill_network(db: AsyncIOMotorDatabase, filter_query: Dict[str
         })
     return {"nodes": nodes, "edges": edges, "central_hub": central_hub}
 
-async def analyze_trending_gap(db: AsyncIOMotorDatabase, filter_query: Dict[str, Any]) -> Dict[str, Any]:
+async def analyze_trending_gap(
+    db: AsyncIOMotorDatabase,
+    filter_query: Dict[str, Any],
+    docs: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """Analisis Akselerasi Tren & Kesenjangan Pasar Dinamis Sesuai Tabel 5 IPYNB."""
-    coll = db[settings.PROCESSED_COLLECTION_NAME]
-    docs = await coll.find(filter_query).to_list(length=3000)
+    if docs is None:
+        coll = db[settings.PROCESSED_COLLECTION_NAME]
+        docs = await coll.find(filter_query).to_list(length=3000)
     total_alumni = max(len(docs), 1)
     alumni_terkini = [d for d in docs if (d.get('latest_work_year') or 0) >= 2026]
     alumni_lama = [d for d in docs if 1980 <= (d.get('latest_work_year') or 0) <= 2022]
@@ -396,14 +454,16 @@ async def calculate_skills_comparison(
     
     comparison_cards = []
     
-    all_cohort_docs = await coll.find(base_filter_query).to_list(length=5000)
+    proj = {
+        "skills": 1, "universities": 1, "study_programs": 1,
+        "target_role": 1, "industry": 1, "latest_work_year": 1
+    }
+    all_cohort_docs = await coll.find(base_filter_query, proj).to_list(length=5000)
     total_cohort = max(len(all_cohort_docs), 1)
     cohort_skill_counts = Counter([s['name'] for d in all_cohort_docs for s in d.get('skills', []) if isinstance(s, dict)])
     cohort_benchmarks = {k: (v / total_cohort) * 100 for k, v in cohort_skill_counts.items()}
     for u_name in target_unis[:3]:
-        u_query = dict(base_filter_query)
-        u_query['universities'] = u_name
-        docs = await coll.find(u_query).to_list(length=2000)
+        docs = [d for d in all_cohort_docs if u_name in d.get('universities', [])]
         n_matched = len(docs)
         
         if n_matched == 0:

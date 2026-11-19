@@ -40,10 +40,10 @@ def render_header(dashboard_data=None):
         # 1. Reset Button
         with c_reset:
             if st.button("Reset", key="btn_reset_all", help="Reset all filters and view to default"):
-                st.session_state["filter_uni"] = "All"
-                st.session_state["filter_prog"] = "All Study Programs"
-                st.session_state["filter_role"] = "All"
-                st.session_state["filter_ind"] = "All"
+                st.session_state["sel_uni"] = "All"
+                st.session_state["sel_prog"] = "All Study Programs"
+                st.session_state["sel_role"] = "All"
+                st.session_state["sel_ind"] = "All"
                 st.query_params.clear()
                 st.rerun()
         # 2. Export CSV Button
@@ -65,10 +65,10 @@ def render_header(dashboard_data=None):
         # 3. Share View Button
         with c_share:
             if st.button("Share view", key="btn_share_view", help="Copy link to current view and filters"):
-                uni = st.session_state.get("filter_uni", "Universitas Gadjah Mada")
-                prog = st.session_state.get("filter_prog", "All Study Programs")
-                role = st.session_state.get("filter_role", "Software Engineer / Tech Roles")
-                ind = st.session_state.get("filter_ind", "Technology")
+                uni = st.session_state.get("sel_uni", "All")
+                prog = st.session_state.get("sel_prog", "All Study Programs")
+                role = st.session_state.get("sel_role", "All")
+                ind = st.session_state.get("sel_ind", "All")
                 share_url = f"http://localhost:8501/?uni={uni}&prog={prog}&role={role}&ind={ind}"
                 st.query_params["uni"] = uni
                 st.query_params["prog"] = prog

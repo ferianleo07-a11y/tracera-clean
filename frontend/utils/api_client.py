@@ -33,7 +33,7 @@ class APIClient:
             "career_levels": ["All", "Entry-Level", "Mid-Senior", "Executive"],
             "locations": ["All", "Indonesia", "Singapore", "Remote"]
             }
-    @st.cache_data(ttl=120, show_spinner=False)
+    @st.cache_data(ttl=300, show_spinner="Loading dashboard data...")
     def fetch_dashboard_data(_self, university=None, study_program=None, target_role=None, industry=None):
         """Mengambil seluruh payload data dashboard dari backend FastAPI."""
         params = {}
@@ -54,7 +54,7 @@ class APIClient:
             pass
         return _self._generate_fallback_data(), False
 
-    @st.cache_data(ttl=120, show_spinner=False)
+    @st.cache_data(ttl=300, show_spinner="Loading comparison data...")
     def fetch_skills_comparison(_self, universities_list, study_program=None, target_role=None, industry=None):
         """Mengambil data perbandingan multi-universitas dari endpoint backend."""
         unis_param = ",".join(universities_list)
