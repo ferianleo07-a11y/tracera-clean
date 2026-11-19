@@ -386,57 +386,149 @@ ROLE_TRANSLATIONS = {
 }
 
 def normalize_target_role(title: str) -> str:
-    """Menormalisasi target role ke format standar bahasa Inggris kanonikal."""
+    """Menormalisasi target role ke 17 Standar Peran Resmi Tracera (5 Job Families)."""
     if not title or not isinstance(title, str):
         return 'Software Engineer'
     t_clean = clean_job_title(title)
     if not t_clean:
         return 'Software Engineer'
-    low = t_clean.strip().lower()
-    return ROLE_TRANSLATIONS.get(low, t_clean)
+    return map_to_tracera_17(t_clean)
+
+def map_to_tracera_17(raw_role: str) -> str:
+    """Mengelompokkan peran kerja spesifik ke dalam 17 Target Role Resmi Tracera (career-paths-page.js)."""
+    r = str(raw_role).lower().strip()
+    
+    # 1. DATA FAMILY
+    if any(k in r for k in ['data lead', 'head of data', 'data governance', 'chief scientist', 'director of data']):
+        return "Data Lead"
+    if any(k in r for k in ['senior data scientist', 'lead data scientist', 'associate director, machine learning']):
+        return "Senior Data Scientist"
+    if any(k in r for k in ['data scientist', 'machine learning', 'artificial intelligence', 'ai ']):
+        return "Data Scientist"
+    if any(k in r for k in ['data analyst', 'analis data', 'bi ', 'business intelligence', 'analytics', 'statistic']):
+        return "Data Analyst"
+
+    # 2. PRODUCT FAMILY
+    if any(k in r for k in ['head of product', 'vp product', 'director of product', 'cpo']):
+        return "Head of Product"
+    if any(k in r for k in ['product manager', 'project manager', 'program manager', 'project management']):
+        return "Product Manager"
+    if any(k in r for k in ['product owner', 'scrum master', 'associate product']):
+        return "Product Owner"
+
+    # 3. MARKETING FAMILY
+    if any(k in r for k in ['marketing manager', 'brand development manager', 'head of marketing', 'marketing director', 'vp, global marketing']):
+        return "Marketing Manager"
+    if any(k in r for k in [
+        'marketing', 'brand', 'sales', 'graphic', 'designer', 'creat', 'content', 
+        'writer', 'public relation', 'pr ', 'social media', 'stylist', 'illustrat', 
+        'video', 'telemarketing', 'kol '
+    ]):
+        return "Marketing Associate"
+
+    # 4. ENGINEERING FAMILY
+    if any(k in r for k in ['engineering manager', 'vp engineering', 'head of engineering', 'director of technology']):
+        return "Engineering Manager"
+    if any(k in r for k in ['technical lead', 'development engineer lead', 'lead developer', 'staff software engineer', 'lead engineer']):
+        return "Technical Lead"
+    if any(k in r for k in ['senior software', 'senior developer', 'senior backend', 'senior ios', 'software architect', 'senior consultant iii']):
+        return "Senior Software Engineer"
+    if any(k in r for k in ['junior software', 'intern developer', 'student intern', 'junior dev', 'student']):
+        if any(k in r for k in ['dev', 'software', 'tech', 'engineer', 'code', 'program']):
+            return "Junior Software Engineer"
+    if any(k in r for k in [
+        'software', 'developer', 'programmer', 'architect', 'devops', 'backend', 
+        'frontend', 'cloud', 'datacenter', 'network engineer', 'full stack', 'web'
+    ]):
+        return "Software Engineer"
+
+    # 5. BUSINESS FAMILY
+    if any(k in r for k in [
+        'business analyst', 'financ', 'keuangan', 'account', 'akuntan', 'audit', 
+        'tax', 'pajak', 'credit', 'bank', 'invest', 'treasury', 'receivable', 
+        'billing', 'cash management', 'underwriting', 'economic planning', 
+        'policy analyst', 'health policy', 'estimator'
+    ]):
+        return "Business Analyst"
+
+    if any(k in r for k in [
+        'consult', 'advisory', 'specialist', 'research', 'peneliti', 'fellow', 
+        'legal', 'compliance', 'facilitator', 'trainer', 'tutor', 'teacher', 
+        'lecturer', 'dosen', 'professor', 'assistant'
+    ]):
+        return "Consultant"
+
+    if any(k in r for k in [
+        'manager', 'director', 'chief', 'ceo', 'coo', 'founder', 'owner', 'partner', 
+        'lead', 'head of', 'vice president', 'vp', 'executive', 'operations', 
+        'supervisor', 'foreman', 'superintendent', 'administrator', 'admin', 
+        'secretary', 'secretariat', 'hsse', 'officer', 'engineer', 'geologist', 
+        'metallurg', 'process', 'operator', 'drilling', 'plant', 'surveyor'
+    ]):
+        return "Operations Manager"
+
+    return "Software Engineer"
 
 # ==============================================================================
-# 4. NORMALISASI & PEMETAAN KAMPUS (UNIVERSITY STANDAR TRACERA & NASIONAL)
+# 4. FILTER KETAT UNIVERSITAS (KHUSUS PERGURUAN TINGGI INDONESIA)
 # ==============================================================================
-HIGH_SCHOOL_PATTERNS = [
-    r'\bsma\b', r'\bsmkn?\b', r'\bsmp\b', r'\bmadrasah\b', r'\bhigh school\b', r'\bsecondary\b', 
-    r'\bmiddle school\b', r'\belementary\b', r'\bschool at\b', r'\btraining center\b', r'\bblk\b',
-    r'\bacamedy\b', r'\bacademies\b'
+EXCLUDE_PATTERNS = [
+    # Sekolah Menengah & Dasar (SMA, SMK, SMP, Madrasah, dll)
+    r'\bsma\b', r'\bsman\b', r'\bsmkn?\b', r'\bsmp\b', r'\bsmpn\b', r'\bsd\b',
+    r'\bmadrasah\b', r'\baliyah\b', r'\btsanawiyah\b', r'\bpesantren\b',
+    r'\bhigh\s*school\b', r'\bsecondary\b', r'\bmiddle\s*school\b', r'\belementary\b',
+    r'\bpreparatory\b', r'\bmatriculation\b', r'\bjunior\s*college\b',
+    r'\bboarding\s*school\b', r'\binternational\s*school\b', r'\bkindergarten\b',
+    
+    # Kursus, Bootcamp, Pelatihan Non-Kampus
+    r'\bacademy\b', r'\bacamedy\b', r'\bacademies\b', r'\bbootcamp\b', r'\bcourse\b',
+    r'\btraining\b', r'\bblk\b', r'\blearning\b', r'\bstartup\s*campus\b',
+    
+    # Lembaga & Universitas Asing (Foreign Institutions)
+    r'\bcolumbia\b', r'\bharvard\b', r'\bimperial\b', r'\bjohns\s*hopkins\b',
+    r'\bcornell\b', r'\bmaryland\b', r'\bsan\s*diego\b', r'\bmissouri\b',
+    r'\bbradford\b', r'\bcurtin\b', r'\brmit\b', r'\bunsw\b', r'\bpetronas\b',
+    r'\bnazarbayev\b', r'\bben-gurion\b', r'\bking\s*fahd\b', r'\btowson\b',
+    r'\bwoosong\b', r'\bastana\b', r'\bkakinada\b', r'\blondon\b', r'\baustralia\b',
+    r'\bmelbourne\b', r'\bsingapore\b', r'\bmalaysia\b', r'\bamerican\b',
+    r'\bcalifornia\b', r'\bbritish\b', r'\bqatar\b', r'\bdoha\b', r'\bchina\b',
+    r'\bsun\s*yat-sen\b', r'\bestonian\b', r'\bchaco\b', r'\bargentina\b',
+    r'\blima\b', r'\bperu\b', r'\bcollege\b', r'\bkolled', r'\bsalahuddin\s*abdul\s*aziz\b'
 ]
 
-UNIVERSITY_MAPPINGS = [
-    # --- Tracera Big 6 (Top Canonical) ---
+INDONESIAN_UNI_MAPPINGS = [
+    # --- Tracera Big 6 (Top Priority) ---
     ("Universitas Gadjah Mada", [
-        r'gadjah mada', r'\bugm\b', r'sekolah vokasi.*gadjah mada'
+        r'gadjah\s*mada', r'\bugm\b', r'sekolah\s*vokasi.*gadjah\s*mada'
     ]),
     ("Universitas Indonesia", [
-        r'universitas indonesia', r'university of indonesia', r'\bui\b'
+        r'universitas\s*indonesia', r'university\s*of\s*indonesia', r'\bui\b'
     ]),
     ("Institut Teknologi Bandung", [
-        r'institut teknologi bandung', r'bandung institute of technology', r'\bitb\b'
+        r'teknologi\s*bandung', r'bandung\s*institute\s*of\s*technology', r'\bitb\b'
     ]),
     ("Institut Teknologi Sepuluh Nopember", [
-        r'sepuluh nopember', r'\bits\b'
+        r'sepuluh\s*nopember', r'\bits\b'
     ]),
     ("Universitas Airlangga", [
         r'airlangga', r'\bunair\b'
     ]),
     ("BINUS University", [
-        r'binus', r'bina nusantara'
+        r'binus', r'bina\s*nusantara'
     ]),
 
-    # --- Other Major Indonesian Universities ---
+    # --- Kampus Negeri & Swasta Terkemuka Indonesia ---
     ("Universitas Pembangunan Nasional Veteran Yogyakarta", [
-        r'pembangunan nasional veteran yogyakarta', r'upn.*veteran.*yogyakarta', r'upnvy'
+        r'pembangunan\s*nasional\s*veteran\s*yogyakarta', r'upn.*veteran.*yogyakarta', r'upnvy'
     ]),
     ("Universitas Pembangunan Nasional Veteran Jawa Timur", [
-        r'pembangunan nasional veteran jawa timur', r'upn.*veteran.*jawa timur', r'upn.*jatim'
+        r'pembangunan\s*nasional\s*veteran\s*jawa\s*timur', r'upn.*veteran.*jawa\s*timur', r'upn.*jatim'
     ]),
     ("Universitas Diponegoro", [
         r'diponegoro', r'\bundip\b'
     ]),
     ("IPB University", [
-        r'ipb', r'institut pertanian bogor', r'bogor agricultural'
+        r'ipb', r'institut\s*pertanian\s*bogor', r'bogor\s*agricultural'
     ]),
     ("Universitas Brawijaya", [
         r'brawijaya', r'\bub\b'
@@ -445,28 +537,28 @@ UNIVERSITY_MAPPINGS = [
         r'padjadjaran', r'\bunpad\b'
     ]),
     ("Universitas Negeri Malang", [
-        r'negeri malang', r'state university of malang'
+        r'negeri\s*malang', r'state\s*university\s*of\s*malang'
     ]),
     ("Universitas Negeri Yogyakarta", [
-        r'negeri yogyakarta', r'yogyakarta state university', r'\buny\b'
+        r'negeri\s*yogyakarta', r'yogyakarta\s*state\s*university', r'\buny\b'
     ]),
     ("Universitas Negeri Semarang", [
-        r'negeri semarang', r'\bunnes\b'
+        r'negeri\s*semarang', r'\bunnes\b'
     ]),
     ("Universitas Negeri Jakarta", [
-        r'negeri jakarta', r'\bunj\b'
+        r'negeri\s*jakarta', r'\bunj\b'
     ]),
     ("Universitas Pendidikan Indonesia", [
-        r'pendidikan indonesia', r'\bupi\b'
+        r'pendidikan\s*indonesia', r'\bupi\b'
     ]),
     ("Universitas Terbuka", [
-        r'universitas terbuka', r'indonesia open university', r'\but\b'
+        r'universitas\s*terbuka', r'indonesia\s*open\s*university', r'\but\b'
     ]),
     ("Universitas Gunadarma", [
         r'gunadarma'
     ]),
     ("Universitas Mercu Buana", [
-        r'mercu buana'
+        r'mercu\s*buana'
     ]),
     ("Universitas Andalas", [
         r'andalas', r'\bunand\b'
@@ -475,49 +567,52 @@ UNIVERSITY_MAPPINGS = [
         r'sriwijaya', r'\bunsri\b'
     ]),
     ("Universitas Lampung", [
-        r'universitas lampung', r'\bunila\b'
+        r'universitas\s*lampung', r'\bunila\b'
     ]),
     ("Universitas Mulawarman", [
         r'mulawarman', r'\bunmul\b'
     ]),
     ("Universitas Islam Indonesia", [
-        r'islam indonesia', r'\buii\b'
+        r'islam\s*indonesia', r'\buii\b'
     ]),
     ("Universitas Sebelas Maret", [
-        r'sebelas maret', r'\buns\b'
+        r'sebelas\s*maret', r'\buns\b'
     ]),
     ("Universitas Jenderal Soedirman", [
-        r'jenderal soedirman', r'\bunsoed\b'
+        r'jenderal\s*soedirman', r'\bunsoed\b'
     ]),
     ("Universitas Sumatera Utara", [
-        r'sumatera utara', r'\busu\b'
+        r'sumatera\s*utara', r'\busu\b'
     ]),
     ("Universitas Hasanuddin", [
         r'hasanuddin', r'\bunhas\b'
     ]),
     ("Universitas Riau", [
-        r'university of riau', r'universitas riau', r'\bunri\b'
+        r'university\s*of\s*riau', r'universitas\s*riau', r'\bunri\b'
     ]),
-    ("Universitas Telkom", [
-        r'telkom university', r'universitas telkom'
+    ("Telkom University", [
+        r'telkom\s*university', r'universitas\s*telkom'
     ]),
     ("Universitas Katolik Parahyangan", [
         r'parahyangan', r'\bunpar\b'
     ]),
     ("Universitas Katolik Indonesia Atma Jaya", [
-        r'atma jaya'
+        r'atma\s*jaya'
     ]),
     ("Universitas Muhammadiyah Malang", [
-        r'muhammadiyah malang', r'\bumm\b'
+        r'muhammadiyah\s*malang', r'\bumm\b'
     ]),
     ("Universitas Muhammadiyah Yogyakarta", [
-        r'muhammadiyah yogyakarta', r'\bumy\b'
+        r'muhammadiyah\s*yogyakarta', r'\bumy\b'
     ]),
     ("Universitas Muhammadiyah Surakarta", [
-        r'muhammadiyah surakarta', r'\bums\b'
+        r'muhammadiyah\s*surakarta', r'\bums\b'
+    ]),
+    ("Universitas Muhammadiyah Kendari", [
+        r'muhammadiyah\s*kendari'
     ]),
     ("Universitas Pertamina", [
-        r'universitas pertamina'
+        r'universitas\s*pertamina'
     ]),
     ("Universitas Pakuan", [
         r'pakuan'
@@ -526,104 +621,92 @@ UNIVERSITY_MAPPINGS = [
         r'pamulang', r'\bunpam\b'
     ]),
     ("Universitas Esa Unggul", [
-        r'esa unggul'
+        r'esa\s*unggul'
     ]),
     ("Universitas Tarumanagara", [
         r'tarumanagara', r'\buntar\b'
     ]),
     ("Universitas Pelita Harapan", [
-        r'pelita harapan', r'\buph\b'
+        r'pelita\s*harapan', r'\buph\b'
     ]),
     ("Universitas Trisakti", [
         r'trisakti'
     ]),
     ("Universitas Bung Hatta", [
-        r'bung hatta'
+        r'bung\s*hatta'
     ]),
     ("Universitas Sultan Ageng Tirtayasa", [
-        r'sultan ageng tirtayasa', r'\buntirta\b'
+        r'sultan\s*ageng\s*tirtayasa', r'\buntirta\b'
     ]),
     ("UIN Syarif Hidayatullah Jakarta", [
-        r'syarif hidayatullah', r'uin jakarta', r'islam negeri jakarta'
+        r'syarif\s*hidayatullah', r'uin\s*jakarta', r'islam\s*negeri\s*jakarta'
     ]),
     ("UIN Sunan Gunung Djati Bandung", [
-        r'sunan gunung djati', r'islam negeri bandung', r'uin bandung'
+        r'sunan\s*gunung\s*djati', r'islam\s*negeri\s*bandung', r'uin\s*bandung'
     ]),
     ("UIN Sunan Kalijaga Yogyakarta", [
-        r'sunan kalijaga', r'uin yogyakarta'
+        r'sunan\s*kalijaga', r'uin\s*yogyakarta'
     ]),
     ("UIN Raden Intan Lampung", [
-        r'raden intan'
+        r'raden\s*intan'
     ]),
     ("Institut Teknologi Sumatera", [
-        r'teknologi sumatera', r'\bitera\b'
+        r'teknologi\s*sumatera', r'\bitera\b'
     ]),
     ("Institut Teknologi Medan", [
-        r'teknologi medan', r'\bitm\b'
+        r'teknologi\s*medan', r'\bitm\b'
     ]),
     ("Politeknik Negeri Jakarta", [
-        r'politeknik negeri jakarta', r'\bpnj\b'
+        r'politeknik\s*negeri\s*jakarta', r'\bpnj\b'
     ]),
     ("Politeknik Negeri Bandung", [
-        r'politeknik negeri bandung', r'\bpolban\b'
+        r'politeknik\s*negeri\s*bandung', r'\bpolban\b'
     ]),
     ("Politeknik Negeri Batam", [
-        r'polytechnic of batam', r'politeknik negeri batam'
+        r'polytechnic\s*of\s*batam', r'politeknik\s*negeri\s*batam'
     ]),
     ("Politeknik Negeri Padang", [
-        r'politeknik negeri padang'
+        r'politeknik\s*negeri\s*padang'
     ]),
     ("Politeknik Caltex Riau", [
-        r'caltex riau', r'\bpcr\b'
-    ]),
-
-    # --- International Universities ---
-    ("Columbia University", [r'columbia university']),
-    ("Carnegie Mellon University", [r'carnegie mellon']),
-    ("Johns Hopkins University", [r'johns hopkins']),
-    ("Imperial College London", [r'imperial college']),
-    ("Cornell University", [r'cornell']),
-    ("University of Maryland", [r'university of maryland']),
-    ("University of San Diego", [r'university of san diego']),
-    ("University of Missouri-Kansas City", [r'missouri-kansas city', r'umkc']),
-    ("University of Bradford", [r'university of bradford']),
-    ("Curtin University", [r'curtin university']),
-    ("RMIT University", [r'rmit']),
-    ("University of New South Wales (UNSW)", [r'\bunsw\b', r'new south wales']),
-    ("Universiti Teknologi PETRONAS", [r'teknologi petronas', r'\butp\b']),
-    ("Nazarbayev University", [r'nazarbayev']),
-    ("Ben-Gurion University of the Negev", [r'ben-gurion']),
-    ("King Fahd University of Petroleum & Minerals", [r'king fahd']),
-    ("Towson University", [r'towson university']),
-    ("Woosong University", [r'woosong university'])
+        r'caltex\s*riau', r'\bpcr\b'
+    ])
 ]
 
-def is_high_school(name: str) -> bool:
-    n = name.lower()
-    return any(re.search(p, n) for p in HIGH_SCHOOL_PATTERNS)
-
-def normalize_single_university(name: str) -> str:
-    if not name or not isinstance(name, str):
+def clean_indonesian_university(raw_name: str) -> str:
+    """Menyaring hanya perguruan tinggi Indonesia terakreditasi dan membuang SMA/SMK/luar negeri."""
+    if not raw_name or not isinstance(raw_name, str):
         return ""
-    name_clean = name.strip()
-    if not name_clean or is_high_school(name_clean):
-        return ""
+    s = raw_name.strip()
+    s_low = s.lower()
     
-    n_low = name_clean.lower()
-    for canonical, patterns in UNIVERSITY_MAPPINGS:
-        if any(re.search(p, n_low) for p in patterns):
+    # Tolak jika termasuk pola sekolah menengah, kursus/bootcamp, atau kampus luar negeri
+    if any(re.search(p, s_low) for p in EXCLUDE_PATTERNS):
+        return ""
+        
+    # Cocokkan dengan kamus kanonikal
+    for canonical, patterns in INDONESIAN_UNI_MAPPINGS:
+        if any(re.search(p, s_low) for p in patterns):
             return canonical
             
-    # Clean up trailing parentheses like "(...)" if it has acronym
-    cleaned = re.sub(r'\s*\([A-Z0-9\s-]+\)$', '', name_clean).strip()
-    return cleaned if len(cleaned) > 3 else name_clean
+    # Pola perguruan tinggi Indonesia umum (harus memiliki kata kunci kampus resmi)
+    indo_keywords = [
+        r'\buniversitas\b', r'\binstitut\b', r'\bpoliteknik\b', 
+        r'\bsekolah\s*tinggi\b', r'\buin\b', r'\biain\b', r'\bstie\b', r'\bstmik\b'
+    ]
+    if any(re.search(k, s_low) for k in indo_keywords):
+        cleaned = re.sub(r'\s*\([A-Z0-9\s-]+\)$', '', s).strip()
+        return cleaned
+        
+    return ""
 
 def clean_universities(raw_list):
+    """Menghasilkan list kampus Indonesia bersih tanpa SMA/SMK/asing."""
     if not raw_list:
         return ['Universitas Gadjah Mada']
     cleaned = []
     for u in raw_list:
-        norm = normalize_single_university(u)
+        norm = clean_indonesian_university(u)
         if norm and norm not in cleaned:
             cleaned.append(norm)
     return cleaned if cleaned else ['Universitas Gadjah Mada']

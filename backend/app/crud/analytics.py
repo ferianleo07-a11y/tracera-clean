@@ -94,13 +94,7 @@ def build_filter_query(
     if study_program and study_program.lower() not in ['all', 'semua', 'all study programs']:
         q['study_programs'] = study_program
     if target_role and target_role.lower() not in ['all', 'semua']:
-        t_low = target_role.lower().strip()
-        if t_low in ['software engineer', 'software engineer / tech roles', 'tech roles']:
-            q['target_role'] = {'$regex': r'software|developer|programmer|architect|devops|backend|frontend', '$options': 'i'}
-        elif t_low in ['data analyst', 'analis data']:
-            q['target_role'] = {'$regex': r'data analyst|analis data', '$options': 'i'}
-        else:
-            q['target_role'] = target_role
+        q['target_role'] = target_role
     if industry and industry.lower() not in ['all', 'semua', '']:
         key = industry.lower().strip()
         patterns = INDUSTRY_MAPPING.get(key, [key])
@@ -127,10 +121,42 @@ async def get_filter_options(db: AsyncIOMotorDatabase) -> Dict[str, List[str]]:
     other_unis = sorted([u for u in unis if u and u not in canonical_unis])
     ordered_unis = [u for u in canonical_unis if u in unis] + other_unis
 
+    # 17 Target Role Resmi Tracera (5 Job Families sesuai career-paths-page.js)
+    tracera_17_roles = [
+        # Engineering
+        "Junior Software Engineer",
+        "Software Engineer",
+        "Senior Software Engineer",
+        "Technical Lead",
+        "Engineering Manager",
+        
+        # Data
+        "Data Analyst",
+        "Data Scientist",
+        "Senior Data Scientist",
+        "Data Lead",
+        
+        # Product
+        "Product Owner",
+        "Product Manager",
+        "Head of Product",
+        
+        # Business
+        "Business Analyst",
+        "Consultant",
+        "Operations Manager",
+        
+        # Marketing
+        "Marketing Associate",
+        "Marketing Manager"
+    ]
+    # Tampilkan yang memiliki alumni di database terlebih dahulu, disusul peran standar lainnya
+    ordered_roles = [r for r in tracera_17_roles if r in roles] + [r for r in tracera_17_roles if r not in roles]
+
     return {
         'universities': ordered_unis,
         'study_programs': sorted([p for p in progs if p]),
-        'target_roles': sorted([r for r in roles if r]),
+        'target_roles': ordered_roles,
         'industries': inds,
         'career_levels': ["All", "Entry-Level", "Mid-Senior", "Executive"],
         'locations': ["All", "Indonesia", "Singapore", "Remote"]

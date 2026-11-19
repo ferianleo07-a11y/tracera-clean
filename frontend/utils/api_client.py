@@ -28,7 +28,13 @@ class APIClient:
         return {
             "universities": ["Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung", "Institut Teknologi Sepuluh Nopember", "Universitas Airlangga", "BINUS University"],
             "study_programs": ["All Study Programs", "Computer Science", "Electrical Engineering", "Industrial Engineering", "Management"],
-            "target_roles": ["Software Engineer", "Data Analyst", "Data Scientist", "Product Manager", "DevOps Engineer"],
+            "target_roles": [
+                "Junior Software Engineer", "Software Engineer", "Senior Software Engineer",
+                "Technical Lead", "Engineering Manager", "Data Analyst", "Data Scientist",
+                "Senior Data Scientist", "Data Lead", "Product Owner", "Product Manager",
+                "Head of Product", "Business Analyst", "Consultant", "Operations Manager",
+                "Marketing Associate", "Marketing Manager"
+            ],
             "industries": ["Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"],
             "career_levels": ["All", "Entry-Level", "Mid-Senior", "Executive"],
             "locations": ["All", "Indonesia", "Singapore", "Remote"]

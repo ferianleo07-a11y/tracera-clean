@@ -37,7 +37,7 @@ def render_cohort_filters(filter_options):
     c1, c2, c3 = st.columns(3)
     unis = ["All"] + [u for u in filter_options.get("universities", []) if u != "All"]
     progs = ["All Study Programs"] + [p for p in filter_options.get("study_programs", []) if p not in ["All", "All Study Programs"]]
-    roles = ["All", "Software Engineer", "Data Analyst"] + [r for r in filter_options.get("target_roles", []) if r not in ["All", "Software Engineer", "Data Analyst"]]
+    roles = ["All"] + [r for r in filter_options.get("target_roles", []) if r != "All"]
     idx_uni = unis.index(st.session_state["sel_uni"]) if st.session_state["sel_uni"] in unis else 0
     idx_prog = progs.index(st.session_state["sel_prog"]) if st.session_state["sel_prog"] in progs else 0
     idx_role = roles.index(st.session_state["sel_role"]) if st.session_state["sel_role"] in roles else 0
