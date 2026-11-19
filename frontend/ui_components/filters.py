@@ -8,27 +8,27 @@ import streamlit as st
 def render_cohort_filters(filter_options):
     """Render Cohort Filters Bar: Dropdowns and Reset Filters (English)."""
     if "filter_uni" not in st.session_state:
-        st.session_state["filter_uni"] = st.query_params.get("uni", "Universitas Gadjah Mada")
+        st.session_state["filter_uni"] = st.query_params.get("uni", "All")
     if "filter_prog" not in st.session_state:
         st.session_state["filter_prog"] = st.query_params.get("prog", "All Study Programs")
     if "filter_role" not in st.session_state:
-        st.session_state["filter_role"] = st.query_params.get("role", "Software Engineer / Tech Roles")
+        st.session_state["filter_role"] = st.query_params.get("role", "All")
     if "filter_ind" not in st.session_state:
-        st.session_state["filter_ind"] = st.query_params.get("ind", "Technology")
+        st.session_state["filter_ind"] = st.query_params.get("ind", "All")
     c_filt_head, c_reset_filt = st.columns([8, 2], vertical_alignment="center")
     with c_filt_head:
         st.markdown(
             """
-            &lt;div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px; margin-bottom: 4px;"&gt;
+            <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px; margin-bottom: 4px;">
                 Cohort filters
-            &lt;/div&gt;
+            </div>
             """,
             unsafe_allow_html=True
         )
     with c_reset_filt:
         if st.button("Reset filters", key="btn_reset_filters_only", help="Reset cohort filters to All"):
             st.session_state["filter_uni"] = "All"
-            st.session_state["filter_prog"] = "All"
+            st.session_state["filter_prog"] = "All Study Programs"
             st.session_state["filter_role"] = "All"
             st.session_state["filter_ind"] = "All"
             st.query_params.clear()
@@ -37,7 +37,7 @@ def render_cohort_filters(filter_options):
     c1, c2, c3 = st.columns(3)
     unis = ["All"] + [u for u in filter_options.get("universities", []) if u != "All"]
     progs = ["All Study Programs"] + [p for p in filter_options.get("study_programs", []) if p not in ["All", "All Study Programs"]]
-    roles = ["Software Engineer / Tech Roles", "All"] + [r for r in filter_options.get("target_roles", []) if r not in ["All", "Software Engineer / Tech Roles"]]
+    roles = ["All", "Software Engineer / Tech Roles"] + [r for r in filter_options.get("target_roles", []) if r not in ["All", "Software Engineer / Tech Roles"]]
     idx_uni = unis.index(st.session_state["filter_uni"]) if st.session_state["filter_uni"] in unis else 0
     idx_prog = progs.index(st.session_state["filter_prog"]) if st.session_state["filter_prog"] in progs else 0
     idx_role = roles.index(st.session_state["filter_role"]) if st.session_state["filter_role"] in roles else 0
@@ -54,14 +54,14 @@ def render_cohort_filters(filter_options):
         with m2:
             st.selectbox("Starting role", ["All", "Junior Developer", "Intern", "Analyst"], key="filter_start")
         with m3:
-            inds = ["Technology", "All", "Financial Services", "Consulting",   "Consumer Goods", "Telecommunications"]
+            inds = ["All", "Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"]
             idx_ind = inds.index(st.session_state["filter_ind"]) if st.session_state["filter_ind"] in inds else 0
             st.session_state["filter_ind"] = st.selectbox("Industry", inds, index=idx_ind, key="sel_ind")
         with m4:
             st.selectbox("Career level", ["Mid-Senior", "Entry-Level", "Executive", "All"], key="filter_lvl")
         with m5:
             st.selectbox("Location", ["Indonesia", "Singapore", "Remote", "All"], key="filter_loc")
-    st.markdown("&lt;hr style='border: none; border-top: 1px solid #f1f5f9; margin: 10px 0 14px 0;'/&gt;", unsafe_allow_html=True)
+    st.markdown("<hr style='border: none; border-top: 1px solid #f1f5f9; margin: 10px 0 14px 0;'/>", unsafe_allow_html=True)
 def render_kpi_metric_cards(kpi_data):
     """Render 4 Borderless KPI Metric Cards (English)."""
     k1, k2, k3, k4 = st.columns(4)
@@ -77,20 +77,20 @@ def render_kpi_metric_cards(kpi_data):
             mom_color = "#16a34a" if "+" in sub else "#64748b"
             st.markdown(
                 f"""
-                &lt;div style="padding: 2px 8px;"&gt;
-                    &lt;div style="font-size: 11.5px; font-weight: 500; color: #64748b; margin-bottom: 2px;"&gt;
+                <div style="padding: 2px 8px;">
+                    <div style="font-size: 11.5px; font-weight: 500; color: #64748b; margin-bottom: 2px;">
                         {label}
-                    &lt;/div&gt;
-                    &lt;div style="display: flex; align-items: baseline; gap: 6px;"&gt;
-                        &lt;span style="font-size: 24px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;"&gt;
+                    </div>
+                    <div style="display: flex; align-items: baseline; gap: 6px;">
+                        <span style="font-size: 24px; font-weight: 700; color: #0f172a; letter-spacing: -0.3px;">
                             {val}
-                        &lt;/span&gt;
-                        &lt;span style="font-size: 11.5px; font-weight: 600; color: {mom_color};"&gt;
+                        </span>
+                        <span style="font-size: 11.5px; font-weight: 600; color: {mom_color};">
                             {sub}
-                        &lt;/span&gt;
-                    &lt;/div&gt;
-                &lt;/div&gt;
+                        </span>
+                    </div>
+                </div>
                 """,
                 unsafe_allow_html=True
             )
-    st.markdown("&lt;hr style='border: none; border-top: 1px solid #e2e8f0; margin: 12px 0 16px 0;'/&gt;", unsafe_allow_html=True)
+    st.markdown("<hr style='border: none; border-top: 1px solid #e2e8f0; margin: 12px 0 16px 0;'/>", unsafe_allow_html=True)

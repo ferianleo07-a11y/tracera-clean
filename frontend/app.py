@@ -4,6 +4,13 @@
 # Lokasi: frontend/app.py
 # Desain Bersih, Proporsional Sesuai Mockup Referensi Tracera
 # ==============================================================================
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import streamlit as st
 from frontend.utils.api_client import api_client
 from frontend.ui_components.headers import render_header
@@ -24,51 +31,51 @@ st.set_page_config(
 )
 # 2. Injeksi Kustom CSS Tema Clean Light Sesuai Standar Tracera
 st.markdown("""
-&lt;style&gt;
+<style>
     footer {visibility: hidden;}
     header {visibility: hidden;}
     .block-container {padding-top: 1rem; padding-bottom: 2rem;}
     button[kind="secondary"] {border-radius: 4px; font-size: 11.5px; font-weight: 500;}
     div[data-testid="stMetricValue"] {font-size: 24px; font-weight: 700; color: #0f172a;}
     .css-1544g2n {padding-top: 1rem;}
-&lt;/style&gt;
+</style>
 """, unsafe_allow_html=True)
 # 3. Sidebar Navigasi Tracera Bersih Berbahasa Inggris (Tanpa Emoticon)
 with st.sidebar:
     st.markdown('''
-    &lt;div style="font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 16px;"&gt;
+    <div style="font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 16px;">
         Tracera
-    &lt;/div&gt;
-    &lt;div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;"&gt;WORK&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Search&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Bulk Upload&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Enrichment&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #94a3b8; padding: 3px 0;"&gt;Enrichment Studio [Locked]&lt;/div&gt;
-    &lt;br/&gt;
-    &lt;div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;"&gt;DATA&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Data sources&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Active services&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Snapshots&lt;/div&gt;
-    &lt;br/&gt;
-    &lt;div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;"&gt;CAREER INTELLIGENCE&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #94a3b8; padding: 3px 0;"&gt;Analytics [Locked]&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Alumni Repository&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Career Paths&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #94a3b8; padding: 3px 0;"&gt;Industry Insights [Locked]&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #475569; padding: 3px 0;"&gt;Employer Network&lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #1d4ed8; font-weight: 700; background: #eff6ff; padding: 4px 8px; border-radius: 4px; margin: 2px 0;"&gt;
+    </div>
+    <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;">WORK</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Search</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Bulk Upload</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Enrichment</div>
+    <div style="font-size: 12px; color: #94a3b8; padding: 3px 0;">Enrichment Studio [Locked]</div>
+    <br/>
+    <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;">DATA</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Data sources</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Active services</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Snapshots</div>
+    <br/>
+    <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px;">CAREER INTELLIGENCE</div>
+    <div style="font-size: 12px; color: #94a3b8; padding: 3px 0;">Analytics [Locked]</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Alumni Repository</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Career Paths</div>
+    <div style="font-size: 12px; color: #94a3b8; padding: 3px 0;">Industry Insights [Locked]</div>
+    <div style="font-size: 12px; color: #475569; padding: 3px 0;">Employer Network</div>
+    <div style="font-size: 12px; color: #1d4ed8; font-weight: 700; background: #eff6ff; padding: 4px 8px; border-radius: 4px; margin: 2px 0;">
         Skills Intelligence
-    &lt;/div&gt;
-    &lt;div style="font-size: 12px; color: #94a3b8; padding: 3px 0;"&gt;Career Benchmark [Locked]&lt;/div&gt;
+    </div>
+    <div style="font-size: 12px; color: #94a3b8; padding: 3px 0;">Career Benchmark [Locked]</div>
     ''', unsafe_allow_html=True)
 
 def main():
-    # 4. Ambil data dropdown filter &amp; payload dashboard terpusat dari FastAPI
+    # 4. Ambil data dropdown filter & payload dashboard terpusat dari FastAPI
     filter_opts = api_client.fetch_filter_options()
-    uni = st.session_state.get("filter_uni", "Universitas Gadjah Mada")
+    uni = st.session_state.get("filter_uni", "All")
     prog = st.session_state.get("filter_prog", "All Study Programs")
-    role = st.session_state.get("filter_role", "Software Engineer / Tech Roles")
-    ind = st.session_state.get("filter_ind", "Technology")
+    role = st.session_state.get("filter_role", "All")
+    ind = st.session_state.get("filter_ind", "All")
 
     dashboard_data, is_conn = api_client.fetch_dashboard_data(uni, prog, role, ind)
 
@@ -98,18 +105,18 @@ def main():
         with col_title:
             if subview == "Ranking View":
                 st.markdown('''
-                &lt;div style="margin-bottom: 8px;"&gt;
-                &lt;div style="font-size: 13.5px; font-weight: 700; color: #0f172a;"&gt;Top Skills Distribution: Hard Skills vs Soft Skills&lt;/div&gt;
-                &lt;div style="font-size: 11px; color: #64748b;"&gt;Comparative ranking of technical capabilities (Hard) vs interpersonal proficiencies (Soft) based on alumni frequency, e
-                ndorsements, and market demand&lt;/div&gt;
-                &lt;/div&gt;
+                <div style="margin-bottom: 8px;">
+                <div style="font-size: 13.5px; font-weight: 700; color: #0f172a;">Top Skills Distribution: Hard Skills vs Soft Skills</div>
+                <div style="font-size: 11px; color: #64748b;">Comparative ranking of technical capabilities (Hard) vs interpersonal proficiencies (Soft) based on alumni frequency, e
+                ndorsements, and market demand</div>
+                </div>
                 ''', unsafe_allow_html=True)
             else:
                 st.markdown('''
-                &lt;div style="margin-bottom: 8px;"&gt;
-                &lt;div style="font-size: 13.5px; font-weight: 700; color: #0f172a;"&gt;Skills Ecosystem &amp; Network (Ecosystem View)&lt;/div&gt;
-                &lt;div style="font-size: 11px; color: #64748b;"&gt;Holistic map of alumni skill taxonomy based on industry categories and co-occurrence correlation graph&lt;/div&gt;
-                &lt;/div&gt;
+                <div style="margin-bottom: 8px;">
+                <div style="font-size: 13.5px; font-weight: 700; color: #0f172a;">Skills Ecosystem &amp; Network (Ecosystem View)</div>
+                <div style="font-size: 11px; color: #64748b;">Holistic map of alumni skill taxonomy based on industry categories and co-occurrence correlation graph</div>
+                </div>
                 ''', unsafe_allow_html=True)
         # Konten Sesuai Mode Toggle Terpilih
         if subview == "Ranking View":

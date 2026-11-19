@@ -8,12 +8,12 @@ def render_hard_vs_soft_skills(hard_soft_data):
     c_hard, c_soft = st.columns(2)
     with c_hard:
         st.markdown('''
-        &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;"&gt;
-            &lt;div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;"&gt;
-                &lt;div style="font-size: 13px; font-weight: 700; color: #0f172a;"&gt;Top Hard Skills &amp; Tools&lt;/div&gt;
-                &lt;span style="background: #eff6ff; color: #1d4ed8; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;"&gt;Top 6 Rank&lt;/span&gt;
-            &lt;/div&gt;
-            &lt;div style="font-size: 11px; color: #64748b; margin-bottom: 12px;"&gt;72% of skill ecosystem (Average 8.1 per profile)&lt;/div&gt;
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Top Hard Skills &amp; Tools</div>
+                <span style="background: #eff6ff; color: #1d4ed8; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">Top 6 Rank</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 12px;">72% of skill ecosystem (Average 8.1 per profile)</div>
         ''', unsafe_allow_html=True)
         for item in hard_items[:6]:
             rank, name = item["rank"], item["skill_name"]
@@ -21,30 +21,30 @@ def render_hard_vs_soft_skills(hard_soft_data):
             badge, color = item["demand_badge"], item["bar_color"]
             badge_color = "#dc2626" if "Deficit" in badge else ("#d97706" if "Surging" in badge else "#1d4ed8")
             st.markdown(f'''
-            &lt;div style="margin-bottom: 8px;"&gt;
-                &lt;div style="display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; margin-bottom: 2px;"&gt;
-                    &lt;span style="color: #0f172a;"&gt;{rank}. {name}&lt;/span&gt;
-                    &lt;span style="font-size: 10.5px; color: #475569;"&gt;{cnt} alumni ({pct}%) &middot; {end} endorsements &lt;span style="color: {badge_color};"&gt;{badge}&lt;/span&gt;&lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div style="background: #f1f5f9; height: 6px; border-radius: 3px; overflow: hidden;"&gt;
-                    &lt;div style="background: {color}; width: {pct}%; height: 100%; border-radius: 3px;"&gt;&lt;/div&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; margin-bottom: 2px;">
+                    <span style="color: #0f172a;">{rank}. {name}</span>
+                    <span style="font-size: 10.5px; color: #475569;">{cnt} alumni ({pct}%) &middot; {end} endorsements <span style="color: {badge_color};">{badge}</span></span>
+                </div>
+                <div style="background: #f1f5f9; height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: {color}; width: {pct}%; height: 100%; border-radius: 3px;"></div>
+                </div>
+            </div>
             ''', unsafe_allow_html=True)
         st.markdown('''
-            &lt;div style="text-align: right; margin-top: 8px;"&gt;
-                &lt;span style="color: #1d4ed8; font-size: 11px; font-weight: 600; cursor: pointer;"&gt;View Top 10 Hard Skills &rarr;&lt;/span&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
+            <div style="text-align: right; margin-top: 8px;">
+                <span style="color: #1d4ed8; font-size: 11px; font-weight: 600; cursor: pointer;">View Top 10 Hard Skills &rarr;</span>
+            </div>
+        </div>
         ''', unsafe_allow_html=True)
     with c_soft:
         st.markdown('''
-        &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;"&gt;
-            &lt;div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;"&gt;
-                &lt;div style="font-size: 13px; font-weight: 700; color: #0f172a;"&gt;Top Soft Skills &amp; Leadership&lt;/div&gt;
-                &lt;span style="background: #fdf2f8; color: #be185d; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;"&gt;Top 6 Rank&lt;/span&gt;
-            &lt;/div&gt;
-            &lt;div style="font-size: 11px; color: #64748b; margin-bottom: 12px;"&gt;28% of skill ecosystem (Average 3.2 per profile)&lt;/div&gt;
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Top Soft Skills &amp; Leadership</div>
+                <span style="background: #fdf2f8; color: #be185d; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">Top 6 Rank</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b; margin-bottom: 12px;">28% of skill ecosystem (Average 3.2 per profile)</div>
         ''', unsafe_allow_html=True)
         for item in soft_items[:6]:
             rank, name = item["rank"], item["skill_name"]
@@ -52,32 +52,32 @@ def render_hard_vs_soft_skills(hard_soft_data):
             badge, color = item["demand_badge"], item["bar_color"]
             badge_color = "#16a34a" if "Universal" in badge or "High" in badge else ("#d97706" if "Surging" in badge else "#64748b")
             st.markdown(f'''
-            &lt;div style="margin-bottom: 8px;"&gt;
-                &lt;div style="display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; margin-bottom: 2px;"&gt;
-                    &lt;span style="color: #0f172a;"&gt;{rank}. {name}&lt;/span&gt;
-                    &lt;span style="font-size: 10.5px; color: #475569;"&gt;{cnt} alumni ({pct}%) &middot; {end} endorsements &lt;span style="color: {badge_color};"&gt;{badge}&lt;/span&gt;&lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div style="background: #f1f5f9; height: 6px; border-radius: 3px; overflow: hidden;"&gt;
-                    &lt;div style="background: {color}; width: {pct}%; height: 100%; border-radius: 3px;"&gt;&lt;/div&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; margin-bottom: 2px;">
+                    <span style="color: #0f172a;">{rank}. {name}</span>
+                    <span style="font-size: 10.5px; color: #475569;">{cnt} alumni ({pct}%) &middot; {end} endorsements <span style="color: {badge_color};">{badge}</span></span>
+                </div>
+                <div style="background: #f1f5f9; height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div style="background: {color}; width: {pct}%; height: 100%; border-radius: 3px;"></div>
+                </div>
+            </div>
             ''', unsafe_allow_html=True)
         st.markdown('''
-            &lt;div style="text-align: right; margin-top: 8px;"&gt;
-                &lt;span style="color: #be185d; font-size: 11px; font-weight: 600; cursor: pointer;"&gt;View Top 10 Soft Skills &rarr;&lt;/span&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
+            <div style="text-align: right; margin-top: 8px;">
+                <span style="color: #be185d; font-size: 11px; font-weight: 600; cursor: pointer;">View Top 10 Soft Skills &rarr;</span>
+            </div>
+        </div>
         ''', unsafe_allow_html=True)
 
 def render_skills_distribution_by_category(skills_dist_data):
     """Render Ecosystem View Sisi Kiri (Horizontal Stacked Bar) - English UI."""
     st.markdown('''
-    &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;"&gt;
-        &lt;div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;"&gt;
-            &lt;div style="font-size: 13px; font-weight: 700; color: #0f172a;"&gt;Skills Distribution by Category&lt;/div&gt;
-            &lt;span style="background: #f1f5f9; color: #475569; font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 4px;"&gt;2,850 Total Skills&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div style="font-size: 11px; color: #64748b; margin-bottom: 10px;"&gt;Segmented by industry taxonomy and technical depth&lt;/div&gt;
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+            <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Skills Distribution by Category</div>
+            <span style="background: #f1f5f9; color: #475569; font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">2,850 Total Skills</span>
+        </div>
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 10px;">Segmented by industry taxonomy and technical depth</div>
     ''', unsafe_allow_html=True)
     cats = skills_dist_data.get("categories", [])
     categories_order = ["Tools & Software Platforms", "Business & Product Strategy", "Soft Skills & Leadership", "Technical & Engineering"]
@@ -108,10 +108,10 @@ def render_skills_distribution_by_category(skills_dist_data):
             y=y_vals, x=x_vals, name=subcat, orientation='h',
             marker_color=subcat_colors.get(subcat, "#94a3b8"),
             text=text_vals, textposition='inside', insidetextanchor='middle',
-            hovertemplate="&lt;b&gt;%{y}&lt;/b&gt;&lt;br&gt;" + subcat + ": %{x:,} entries&lt;extra&gt;&lt;/extra&gt;"
+            hovertemplate="<b>%{y}</b><br>" + subcat + ": %{x:,} entries<extra></extra>"
         ))
     fig.update_layout(
-        barcdmode='stack', height=260, showlegend=False,
+        barmode='stack', height=260, showlegend=False,
         margin=dict(l=10, r=10, t=10, b=10),
         plot_bgcolor="#ffffff", paper_bgcolor="#ffffff"
     )
@@ -119,9 +119,9 @@ def render_skills_distribution_by_category(skills_dist_data):
     fig.update_yaxes(tickfont=dict(size=9, color="#1e293b", weight="bold"))
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     st.markdown('''
-        &lt;div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px;"&gt;
-            &lt;span&gt;Showing accumulated skill entries across profiles&lt;/span&gt;
-            &lt;span style="color: #1d4ed8; cursor: pointer; font-weight: 600;"&gt;Open full taxonomy &rarr;&lt;/span&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px;">
+            <span>Showing accumulated skill entries across profiles</span>
+            <span style="color: #1d4ed8; cursor: pointer; font-weight: 600;">Open full taxonomy &rarr;</span>
+        </div>
+    </div>
     ''', unsafe_allow_html=True)

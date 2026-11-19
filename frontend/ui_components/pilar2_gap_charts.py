@@ -4,12 +4,12 @@ import streamlit as st
 def render_skill_network_graph(network_data):
     """Render Ecosystem View Sisi Kanan (Co-occurrence Network Graph) - English UI."""
     st.markdown('''
-    &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;"&gt;
-        &lt;div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;"&gt;
-            &lt;div style="font-size: 13px; font-weight: 700; color: #0f172a;"&gt;Skill Co-occurrence Network Graph&lt;/div&gt;
-            &lt;span style="background: #e0f2fe; color: #0284c7; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;"&gt;Dense Cluster&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div style="font-size: 11px; color: #64748b; margin-bottom: 8px;"&gt;Correlation of skills frequently co-appearing on alumni profiles&lt;/div&gt;
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+            <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Skill Co-occurrence Network Graph</div>
+            <span style="background: #e0f2fe; color: #0284c7; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">Dense Cluster</span>
+        </div>
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Correlation of skills frequently co-appearing on alumni profiles</div>
     ''', unsafe_allow_html=True)
     nodes = network_data.get("nodes", [])
     edges = network_data.get("edges", [])
@@ -27,7 +27,7 @@ def render_skill_network_graph(network_data):
     node_size = [n.get("size", 20) for n in nodes]
     node_color = [n.get("color", "#0284c7") for n in nodes]
     node_text = [n.get("label", "") for n in nodes]
-    hover_text = [f"&lt;b&gt;{n['label']}&lt;/b&gt;&lt;br&gt;Dimension: {n['dimension']}&lt;br&gt;Endorsements: {n['endorsements']}&lt;br&gt;Alumni: {n['frequency']} ({n['pct']}%)" for n in nodes]
+    hover_text = [f"<b>{n['label']}</b><br>Dimension: {n['dimension']}<br>Endorsements: {n['endorsements']}<br>Alumni: {n['frequency']} ({n['pct']}%)" for n in nodes]
     fig.add_trace(go.Scatter(
         x=node_x, y=node_y, mode='markers+text',
         marker=dict(size=node_size, color=node_color, line=dict(width=1.8, color='#ffffff')),
@@ -42,33 +42,33 @@ def render_skill_network_graph(network_data):
     )
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     st.markdown('''
-        &lt;div style="font-size: 10px; color: #64748b; margin-top: 4px; text-align: center;"&gt;
-            Node size = endorsement volume &middot; Line = co-occurrence strength &middot; &lt;span style="color: #1d4ed8; cursor: pointer;"&gt;Filter node: &blacktriangledown;&lt;/span&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
+        <div style="font-size: 10px; color: #64748b; margin-top: 4px; text-align: center;">
+            Node size = endorsement volume &middot; Line = co-occurrence strength &middot; <span style="color: #1d4ed8; cursor: pointer;">Filter node: &blacktriangledown;</span>
+        </div>
+    </div>
     ''', unsafe_allow_html=True)
 
 def render_trending_gap_table(gap_data):
     """Render Tabel 'Trending Skills & Market Gap Analysis' (English UI)."""
     st.markdown('''
-    &lt;div style="margin-top: 18px; margin-bottom: 6px;"&gt;
-        &lt;div style="display: flex; justify-content: space-between; align-items: center;"&gt;
-            &lt;div style="font-size: 14px; font-weight: 700; color: #0f172a;"&gt;Trending Skills &amp; Market Gap Analysis&lt;/div&gt;
-            &lt;span style="font-size: 11px; color: #64748b;"&gt;Calculated from 1,200+ Active Job Postings&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div style="font-size: 11px; color: #64748b; margin-top: 2px;"&gt;
+    <div style="margin-top: 18px; margin-bottom: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 14px; font-weight: 700; color: #0f172a;">Trending Skills &amp; Market Gap Analysis</div>
+            <span style="font-size: 11px; color: #64748b;">Calculated from 1,200+ Active Job Postings</span>
+        </div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
             Skill acceleration analysis (30-day velocity) compared against industry hiring demand benchmarks
-        &lt;/div&gt;
-    &lt;/div&gt;
+        </div>
+    </div>
     ''', unsafe_allow_html=True)
     items = gap_data.get("items", [])
     header_html = '''
-    &lt;table style="width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;"&gt;
-        &lt;tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: #475569; text-align: left; font-size: 10.5px; text-transform: uppercase;"&gt;
-            &lt;th style="padding: 7px 9px;"&gt;No&lt;/th&gt;&lt;th&gt;Skill Name&lt;/th&gt;&lt;th&gt;Skill Type&lt;/th&gt;
-            &lt;th&gt;Alumni Frequency&lt;/th&gt;&lt;th&gt;30d Trend&lt;/th&gt;&lt;th&gt;Market Gap Analysis (Supply vs Demand)&lt;/th&gt;
-            &lt;th&gt;Target Career Roles&lt;/th&gt;&lt;th style="text-align: right; padding-right: 10px;"&gt;Action&lt;/th&gt;
-        &lt;/tr&gt;'''
+    <table style="width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 12px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;">
+        <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: #475569; text-align: left; font-size: 10.5px; text-transform: uppercase;">
+            <th style="padding: 7px 9px;">No</th><th>Skill Name</th><th>Skill Type</th>
+            <th>Alumni Frequency</th><th>30d Trend</th><th>Market Gap Analysis (Supply vs Demand)</th>
+            <th>Target Career Roles</th><th style="text-align: right; padding-right: 10px;">Action</th>
+        </tr>'''
     rows_html = ""
     for it in items:
         badge_type = "#dbeafe; color: #1e40af;" if "Hard" in it["skill_type"] else ("#fce7f3; color: #be185d;" if "Soft" in it["skill_type"] else "#f3e8ff; color: #7e22ce;")
@@ -76,17 +76,17 @@ def render_trending_gap_table(gap_data):
         gap_bg = "#fef2f2" if "Critical" in it["gap_status"] or "Shortage" in it["gap_status"] else ("#fffbeb" if "Moderate" in it["gap_status"] else "#f0fdf4")
         roles_str = ", ".join(it["target_roles"])
         rows_html += f'''
-        &lt;tr style="border-bottom: 1px solid #f1f5f9;"&gt;
-            &lt;td style="padding: 7px 9px; font-weight: 600; color: #94a3b8;"&gt;{it["no"]}&lt;/td&gt;
-            &lt;td style="font-weight: 600; color: #0f172a;"&gt;{it["skill_name"]}&lt;/td&gt;
-            &lt;td&gt;&lt;span style="background: {badge_type} padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;"&gt;{it["skill_type"]}&lt;/span&gt;&lt;/td&gt;
-             &lt;td style="color: #334155;"&gt;{it["alumni_count"]} alumni ({it["alumni_pct"]}%)&lt;/td&gt;
-            &lt;td style="color: #16a34a; font-weight: 600;"&gt;&blacktriangle; +{it["trend_30d_pct"]}%&lt;/td&gt;
-            &lt;td&gt;&lt;span style="background: {gap_bg}; color: {gap_color}; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10.5px;"&gt;{it["gap_score"]:+.1f}% ({it["gap_status"]})&lt;/span&gt;&lt;/td&gt;
-            &lt;td style="color: #475569; font-size: 11px;"&gt;{roles_str}&lt;/td&gt;
-            &lt;td style="text-align: right; padding-right: 10px;"&gt;&lt;span style="color: #1d4ed8; font-weight: 600; cursor: pointer; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; font-size: 10px;"&gt;Explore &rarr;&lt;/span&gt;&lt;/td&gt;
-        &lt;/tr&gt;'''
-    st.markdown(header_html + rows_html + "&lt;/table&gt;", unsafe_allow_html=True)
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 7px 9px; font-weight: 600; color: #94a3b8;">{it["no"]}</td>
+            <td style="font-weight: 600; color: #0f172a;">{it["skill_name"]}</td>
+            <td><span style="background: {badge_type} padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;">{it["skill_type"]}</span></td>
+             <td style="color: #334155;">{it["alumni_count"]} alumni ({it["alumni_pct"]}%)</td>
+            <td style="color: #16a34a; font-weight: 600;">&blacktriangle; +{it["trend_30d_pct"]}%</td>
+            <td><span style="background: {gap_bg}; color: {gap_color}; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10.5px;">{it["gap_score"]:+.1f}% ({it["gap_status"]})</span></td>
+            <td style="color: #475569; font-size: 11px;">{roles_str}</td>
+            <td style="text-align: right; padding-right: 10px;"><span style="color: #1d4ed8; font-weight: 600; cursor: pointer; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; font-size: 10px;">Explore &rarr;</span></td>
+        </tr>'''
+    st.markdown(header_html + rows_html + "</table>", unsafe_allow_html=True)
 
 def render_insights_cards(gap_data, mode="ranking"):
     """Render 4 Kartu Wawasan Eksekutif (English UI)."""
@@ -109,10 +109,10 @@ def render_insights_cards(gap_data, mode="ranking"):
     for col, (title, desc) in zip([c1, c2, c3, c4], cards):
         with col:
             st.markdown(f'''
-            &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; height: 100%;"&gt;
-                &lt;div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-bottom: 3px;"&gt;{title}&lt;/div&gt;
-                &lt;div style="font-size: 10px; color: #475569; line-height: 1.35;"&gt;{desc}&lt;/div&gt;
-            &lt;/div&gt;
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; height: 100%;">
+                <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-bottom: 3px;">{title}</div>
+                <div style="font-size: 10px; color: #475569; line-height: 1.35;">{desc}</div>
+            </div>
             ''', unsafe_allow_html=True)
 
 def render_skills_comparison(comparison_data):
@@ -124,10 +124,10 @@ def render_skills_comparison(comparison_data):
     """
 
     st.markdown('''
-    &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;"&gt;
-        &lt;div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 2px;"&gt;Compare observed skills &amp; benchmark alignment&lt;/div&gt;
-        &lt;div style="font-size: 11px; color: #64748b; margin-bottom: 8px;"&gt;Select 2–3 universities. Cohort filters apply.&lt;/div&gt;
-    &lt;/div&gt;
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+        <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">Compare observed skills &amp; benchmark alignment</div>
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Select 2–3 universities. Cohort filters apply.</div>
+    </div>
     ''', unsafe_allow_html=True)
 
     cb_cols = st.columns(6)
@@ -137,9 +137,9 @@ def render_skills_comparison(comparison_data):
     ]
     selected_unis = []
     defaults = ["Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung"]
-    for col, u_name in zip(cb_cols, all_unis):
+    for idx, (col, u_name) in enumerate(zip(cb_cols, all_unis)):
         with col:
-            chk = st.checkbox(u_name, value=(u_name in defaults), key=f"cb_{u_name[:4]}")
+            chk = st.checkbox(u_name, value=(u_name in defaults), key=f"cb_univ_{idx}")
             if chk:
                 selected_unis.append(u_name)
     if len(selected_unis) < 2:
@@ -158,63 +158,63 @@ def render_skills_comparison(comparison_data):
         with col:
 
             st.markdown(f'''
-            &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;"&gt;
-                &lt;div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;"&gt;
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;">
+                <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
                     {u_name}
-                &lt;/div&gt;
+                </div>
             ''', unsafe_allow_html=True)
 
-            align_badge = f'&lt;span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;"&gt;{m["market_alignment_label"]}&lt;/span&gt;' if m["market_alignment_label"] in ["Leader", "High"] else f'&lt;span style="background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;"&gt;{m["market_alignment_label"]}&lt;/span&gt;'
+            align_badge = f'<span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">{m["market_alignment_label"]}</span>' if m["market_alignment_label"] in ["Leader", "High"] else f'<span style="background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">{m["market_alignment_label"]}</span>'
             st.markdown(f'''
-            &lt;div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 11.5px;"&gt;
-                &lt;div style="display: flex; justify-content: space-between;"&gt;&lt;span style="color: #64748b;"&gt;Matched alumni&lt;/span&gt;&lt;span style="font-weight: 600;"&gt;{m["matched_alumni"]}&lt;/span&gt;&lt;/div&gt;
-                &lt;div style="display: flex; justify-content: space-between;"&gt;&lt;span style="color: #64748b;"&gt;Skill type ratio (H:S)&lt;/span&gt;&lt;span style="font-weight: 600;"&gt;{m["skill_type_ratio"]}&lt;/span&gt;&lt;/div&gt;
-                &lt;div style="display: flex; justify-content: space-between; align-items: center;"&gt;&lt;span style="color: #64748b;"&gt;Market Alignment&lt;/span&gt;&lt;span style="font-weight: 600;"&gt;{m["market_alignment_pct"]}% {align_badge}&lt;/span&gt;&lt;/div&gt;
-                &lt;div style="display: flex; justify-content: space-between;"&gt;&lt;span style="color: #64748b;"&gt;Highest Skill Velocity&lt;/span&gt;&lt;span style="font-weight: 600; colo
-                r: #0f172a;"&gt;{m["highest_velocity_skill"]}&lt;/span&gt;&lt;/div&gt;
-            &lt;/div&gt;
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 11.5px;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Matched alumni</span><span style="font-weight: 600;">{m["matched_alumni"]}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Skill type ratio (H:S)</span><span style="font-weight: 600;">{m["skill_type_ratio"]}</span></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #64748b;">Market Alignment</span><span style="font-weight: 600;">{m["market_alignment_pct"]}% {align_badge}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Highest Skill Velocity</span><span style="font-weight: 600; colo
+                r: #0f172a;">{m["highest_velocity_skill"]}</span></div>
+            </div>
             ''', unsafe_allow_html=True)
 
-            st.markdown('&lt;div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-bottom: 8px;"&gt;Top Hard Skills &middot; Market Benchmark&lt;/div&gt;', unsafe_allow_html=True)
+            st.markdown('<div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-bottom: 8px;">Top Hard Skills &middot; Market Benchmark</div>', unsafe_allow_html=True)
             for h in h_skills[:5]:
                 bg_badge = "#dcfce7; color: #166534;" if h["badge_type"] == "safe" else ("#fee2e2; color: #991b1b;" if h["badge_type"] == "deficit" else ("#fef3c7; color: #92400e;" if h["badge_type"] == "gap" else "#f1f5f9; color: #475569;"))
                 st.markdown(f'''
-                &lt;div style="margin-bottom: 8px;"&gt;
-                    &lt;div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;"&gt;
-                        &lt;span style="color: #1e293b; font-weight: 500;"&gt;{h["rank"]}. {h["skill_name"]}&lt;/span&gt;
-                        &lt;span style="font-size: 10.5px; color: #64748b;"&gt;{h["count"]} ({h["percentage"]}%) &lt;span style="background: {bg_badge} font-size: 9.5px; padding: 1px 5px; border-radius: 3px; font-weight: 600;"&gt;{h["demand_badge"]}&lt;/span&gt;&lt;/span&gt;
-                    &lt;/div&gt;
-                    &lt;div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;"&gt;
-                        &lt;div style="width: {h['percentage']}%; height: 100%; background: #2563eb; border-radius: 2px;"&gt;&lt;/div&gt;
-                    &lt;/div&gt;
-                &lt;/div&gt;
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+                        <span style="color: #1e293b; font-weight: 500;">{h["rank"]}. {h["skill_name"]}</span>
+                        <span style="font-size: 10.5px; color: #64748b;">{h["count"]} ({h["percentage"]}%) <span style="background: {bg_badge} font-size: 9.5px; padding: 1px 5px; border-radius: 3px; font-weight: 600;">{h["demand_badge"]}</span></span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;">
+                        <div style="width: {h['percentage']}%; height: 100%; background: #2563eb; border-radius: 2px;"></div>
+                    </div>
+                </div>
                 ''', unsafe_allow_html=True)
 
-            st.markdown('&lt;div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-top: 12px; margin-bottom: 8px;"&gt;Top Soft Skills&lt;/div&gt;', unsafe_allow_html=True)
+            st.markdown('<div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-top: 12px; margin-bottom: 8px;">Top Soft Skills</div>', unsafe_allow_html=True)
             for s in s_skills[:4]:
                 st.markdown(f'''
-                &lt;div style="margin-bottom: 8px;"&gt;
-                    &lt;div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;"&gt;
-                        &lt;span style="color: #1e293b; font-weight: 500;"&gt;{s["rank"]}. {s["skill_name"]}&lt;/span&gt;
-                        &lt;span style="font-size: 10.5px; color: #64748b;"&gt;{s["count"]} ({s["percentage"]}%)&lt;/span&gt;
-                    &lt;/div&gt;
-                    &lt;div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;"&gt;
-                        &lt;div style="width: {s['percentage']}%; height: 100%; background: #7c3aed; border-radius: 2px;"&gt;&lt;/div&gt;
-                    &lt;/div&gt;
-                &lt;/div&gt;
+                <div style="margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+                        <span style="color: #1e293b; font-weight: 500;">{s["rank"]}. {s["skill_name"]}</span>
+                        <span style="font-size: 10.5px; color: #64748b;">{s["count"]} ({s["percentage"]}%)</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;">
+                        <div style="width: {s['percentage']}%; height: 100%; background: #7c3aed; border-radius: 2px;"></div>
+                    </div>
+                </div>
                 ''', unsafe_allow_html=True)
 
-            st.markdown('&lt;div style="border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 10px;"&gt;&lt;div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; margin-bottom: 6px;"&gt;Signature Skills (vs Cohort)&lt;/div&gt;', unsafe_allow_html=True)
+            st.markdown('<div style="border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 10px;"><div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; margin-bottom: 6px;">Signature Skills (vs Cohort)</div>', unsafe_allow_html=True)
             for sig in sigs[:2]:
                 st.markdown(f'''
-                &lt;div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;"&gt;
-                    &lt;span style="color: #1e293b; font-weight: 500;"&gt;{sig["skill_name"]}&lt;/span&gt;
-                    &lt;span style="color: #16a34a; font-weight: 600; font-size: 11px;"&gt;{sig["diff_pct"]}&lt;/span&gt;
-                &lt;/div&gt;
+                <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
+                    <span style="color: #1e293b; font-weight: 500;">{sig["skill_name"]}</span>
+                    <span style="color: #16a34a; font-weight: 600; font-size: 11px;">{sig["diff_pct"]}</span>
+                </div>
                 ''', unsafe_allow_html=True)
-            st.markdown('&lt;/div&gt;&lt;/div&gt;', unsafe_allow_html=True)
+            st.markdown('</div></div>', unsafe_allow_html=True)
 
-    st.markdown('&lt;div style="margin-top: 18px;"&gt;&lt;/div&gt;', unsafe_allow_html=True)
+    st.markdown('<div style="margin-top: 18px;"></div>', unsafe_allow_html=True)
     t_cols = st.columns(4)
     takeaways = comparison_data.get("executive_takeaways", [])
     for col, t in zip(t_cols, takeaways):
@@ -223,10 +223,10 @@ def render_skills_comparison(comparison_data):
         desc_color = "#7f1d1d" if t["card_type"] == "critical" else ("#14532d" if t["card_type"] == "success" else "#64748b")
         with col:
             st.markdown(f'''
-            &lt;div style="background: {card_bg} border: 1px solid; border-radius: 8px; padding: 12px 14px; height: 100%;"&gt;
-                &lt;div style="font-size: 11.5px; font-weight: 700; color: {title_color}; margin-bottom: 4px;"&gt;{t["title"]}&lt;/div&gt;
-                &lt;div style="font-size: 11px; color: {desc_color}; line-height: 1.4;"&gt;{t["description"]}&lt;/div&gt;
-            &lt;/div&gt;
+            <div style="background: {card_bg} border: 1px solid; border-radius: 8px; padding: 12px 14px; height: 100%;">
+                <div style="font-size: 11.5px; font-weight: 700; color: {title_color}; margin-bottom: 4px;">{t["title"]}</div>
+                <div style="font-size: 11px; color: {desc_color}; line-height: 1.4;">{t["description"]}</div>
+            </div>
             ''', unsafe_allow_html=True)
 def render_skill_details(dashboard_data):
     """Komponen Tab 3: Skill Details (Preview Antarmuka Frontend - English UI)."""
@@ -235,24 +235,24 @@ def render_skill_details(dashboard_data):
         "Cloud Infrastructure (AWS/GCP)", "Problem Solving & Critical Thinking"
     ])
     st.markdown(f'''
-    &lt;div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-top: 6px;"&gt;
-        &lt;div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 2px;"&gt;{selected_skill}&lt;/div&gt;
-        &lt;div style="font-size: 11.5px; color: #64748b;"&gt;Category: Technical &amp; Engineering &middot; Relevance Score: 94%&lt;/div&gt;
-        &lt;hr style="border: none; border-top: 1px solid #f1f5f9; margin: 10px 0;"/&gt;
-        &lt;div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 11.5px;"&gt;
-            &lt;div&gt;
-                &lt;b&gt;Total Endorsements:&lt;/b&gt;&lt;br/&gt;
-                &lt;span style="font-size: 20px; font-weight: 700; color: #1d4ed8;"&gt;740&lt;/span&gt; peer validations
-            &lt;/div&gt;
-            &lt;div&gt;
-                &lt;b&gt;Primary Career Targets:&lt;/b&gt;&lt;br/&gt;
-                1. Software Engineer (65%)&lt;br/&gt;2. Data Scientist (25%)&lt;br/&gt;3. Cloud Architect (10%)
-            &lt;/div&gt;
-            &lt;div&gt;
-                &lt;b&gt;Top Hiring Organizations:&lt;/b&gt;&lt;br/&gt;
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-top: 6px;">
+        <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">{selected_skill}</div>
+        <div style="font-size: 11.5px; color: #64748b;">Category: Technical &amp; Engineering &middot; Relevance Score: 94%</div>
+        <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 10px 0;"/>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 11.5px;">
+            <div>
+                <b>Total Endorsements:</b><br/>
+                <span style="font-size: 20px; font-weight: 700; color: #1d4ed8;">740</span> peer validations
+            </div>
+            <div>
+                <b>Primary Career Targets:</b><br/>
+                1. Software Engineer (65%)<br/>2. Data Scientist (25%)<br/>3. Cloud Architect (10%)
+            </div>
+            <div>
+                <b>Top Hiring Organizations:</b><br/>
                 &bull; Shopee, GoTo, BCA, Telkom Indonesia, Tiket.com
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
+            </div>
+        </div>
+    </div>
     ''', unsafe_allow_html=True)
     st.success(f"Career Preparedness: Alumni with {selected_skill} achieve an average hiring absorption of 2.1 months post-graduation.")
