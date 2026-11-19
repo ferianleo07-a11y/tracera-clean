@@ -19,9 +19,70 @@ Antarmuka dashboard (UI) disajikan dalam standar bahasa Inggris profesional (Cle
 - **Orang 3 (Backend Lead)**: Arsitektur REST API FastAPI, APIRouter endpoints, middleware keamanan, Pydantic settings, dan server lifespan.
 - **Orang 4 (Frontend Lead)**: Proteksi Git, HTTP client caching, shell UI Streamlit (header, filter, card KPI), dan orkestrasi 3 Tab `app.py`.
 
-## Panduan Cepat Menjalankan Sistem
+## Panduan Instalasi & Menjalankan Aplikasi
 
-1. Setup Backend: `cd backend &amp;&amp; python -m venv .venv &amp;&amp; .\.venv\Scripts\Activate.ps1 &amp;&amp; pip install -r requirements.txt`
-2. Jalankan Backend: `uvicorn app.main:app --reload --port 8000`
-3. Setup Frontend: `cd frontend &amp;&amp; python -m venv .venv &amp;&amp; .\.venv\Scripts\Activate.ps1 &amp;&amp; pip install -r requirements.txt`
-4. Jalankan Frontend: `streamlit run app.py --server.port 8501`
+Jalankan _Backend_ dan _Frontend_ pada dua jendela terminal terpisah agar keduanya berjalan bersamaan.
+
+### Opsi 1: Windows PowerShell
+
+```powershell
+# ==========================================
+# LANGKAH A: SETUP BACKEND (Terminal PowerShell 1)
+# ==========================================
+# 1. Masuk ke direktori backend
+cd my_project/backend
+
+# 2. Buat virtual environment baru khusus backend
+python -m venv .venv
+
+# 3. Berikan izin eksekusi script PowerShell jika dibatasi (ExecutionPolicy)
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+# 4. Aktivasi virtual environment backend
+.\.venv\Scripts\Activate.ps1
+
+# 5. Perbarui pip dan pasang seluruh dependensi backend
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# 6. Salin template konfigurasi dan sesuaikan kredensial MongoDB Atlas Anda
+copy .env.example .env
+
+# 7. Jalankan server backend FastAPI pada port 8000 dengan fitur reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Verifikasi Endpoint Backend:
+# - API Health: http://localhost:8000/health
+# - Swagger UI: http://localhost:8000/docs
+# - Redoc UI:   http://localhost:8000/redoc
+
+
+# ==========================================
+# LANGKAH B: SETUP FRONTEND (Terminal PowerShell 2 - buka jendela baru)
+# ==========================================
+# 1. Masuk ke direktori frontend (pastikan berada di root proyek terlebih dahulu jika perlu)
+cd my_project/frontend
+
+# 2. Buat virtual environment baru khusus frontend
+python -m venv .venv
+
+# 3. Berikan izin eksekusi script PowerShell jika dibatasi (ExecutionPolicy)
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+# 4. Aktivasi virtual environment frontend
+.\.venv\Scripts\Activate.ps1
+
+# 5. Perbarui pip dan pasang dependensi antarmuka frontend
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# 6. Salin konfigurasi environment frontend dan sesuaikan URL API backend jika diperlukan
+copy .env.example .env
+
+# 7. Jalankan aplikasi Streamlit pada port 8501
+streamlit run app.py --server.port 8501
+
+# Verifikasi Tampilan Frontend:
+# - Buka peramban pada: http://localhost:8501
+# - Pastikan status antarmuka bersih dan visualisasi ter-render dengan sempurna
+```
