@@ -121,16 +121,23 @@ class APIClient:
                     {"rank": 3, "skill_name": "Cloud Infrastructure (AWS/GCP)", "count": 112, "percentage": 46.7, "endorsements": 315, "demand_badge": "[Surging ▲]", "bar_color": "#f97316"},
                     {"rank": 4, "skill_name": "System Architecture & Microservices", "count": 98, "percentage": 40.8, "endorsements": 170, "demand_badge": "[Deficit 🔥]", "bar_color": "#ef4444"},
                     {"rank": 5, "skill_name": "Data Structures & Algorithms", "count": 88, "percentage": 36.7, "endorsements": 110, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
-                    {"rank": 6, "skill_name": "Docker & Containerization", "count": 76, "percentage": 31.7, "endorsements": 94, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"}
+                    {"rank": 6, "skill_name": "Docker & Containerization", "count": 76, "percentage": 31.7, "endorsements": 94, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
+                    {"rank": 7, "skill_name": "Git & Version Control", "count": 68, "percentage": 28.3, "endorsements": 82, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
+                    {"rank": 8, "skill_name": "CI/CD & DevOps Automation", "count": 58, "percentage": 24.2, "endorsements": 76, "demand_badge": "[Surging ▲]", "bar_color": "#f97316"},
+                    {"rank": 9, "skill_name": "REST API & GraphQL Development", "count": 52, "percentage": 21.7, "endorsements": 64, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
+                    {"rank": 10, "skill_name": "Linux System Administration", "count": 46, "percentage": 19.2, "endorsements": 58, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"}
                 ],
                 "soft_skills": [
-                    {"rank": 1, "skill_name": "Problem Solving & Critical Thinking", "count": 210, "percentage": 87.5, "endorsements": 512, "demand_badge": "[Universal ★★★]", "bar_color":
-                    "#10b981"},
+                    {"rank": 1, "skill_name": "Problem Solving & Critical Thinking", "count": 210, "percentage": 87.5, "endorsements": 512, "demand_badge": "[Universal ★★★]", "bar_color": "#10b981"},
                     {"rank": 2, "skill_name": "Cross-functional Collaboration", "count": 178, "percentage": 74.2, "endorsements": 245, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
                     {"rank": 3, "skill_name": "Stakeholder & Client Communication", "count": 134, "percentage": 55.8, "endorsements": 180, "demand_badge": "[Surging ▲]", "bar_color": "#f97316"},
                     {"rank": 4, "skill_name": "Agile & Scrum Coordination", "count": 126, "percentage": 52.5, "endorsements": 165, "demand_badge": "[Standard ★★]", "bar_color": "#10b981"},
                     {"rank": 5, "skill_name": "Adaptability & Continuous Learning", "count": 108, "percentage": 45.0, "endorsements": 140, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
-                    {"rank": 6, "skill_name": "Team Leadership & Mentoring", "count": 92, "percentage": 38.3, "endorsements": 125, "demand_badge": "[High ★★]", "bar_color": "#10b981"}
+                    {"rank": 6, "skill_name": "Team Leadership & Mentoring", "count": 92, "percentage": 38.3, "endorsements": 125, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
+                    {"rank": 7, "skill_name": "Strategic Analytical Thinking", "count": 85, "percentage": 35.4, "endorsements": 110, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
+                    {"rank": 8, "skill_name": "Public Speaking & Presentation", "count": 78, "percentage": 32.5, "endorsements": 95, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
+                    {"rank": 9, "skill_name": "Time & Priority Management", "count": 70, "percentage": 29.2, "endorsements": 84, "demand_badge": "[Standard ★★]", "bar_color": "#10b981"},
+                    {"rank": 10, "skill_name": "Conflict Resolution & Negotiation", "count": 62, "percentage": 25.8, "endorsements": 72, "demand_badge": "[Standard ★★]", "bar_color": "#10b981"}
                 ]
             },
             "skills_distribution": {

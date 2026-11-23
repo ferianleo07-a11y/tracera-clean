@@ -3,20 +3,50 @@ import streamlit as st
 
 def render_hard_vs_soft_skills(hard_soft_data):
     """Render Ranking View: Dual Column Progress Bar Hard vs Soft Skills (English)."""
+    if "top_skills_limit" not in st.session_state:
+        st.session_state["top_skills_limit"] = 6
+    top_limit = st.session_state["top_skills_limit"]
+    badge_label = f"Top {top_limit} Rank"
+    btn_label = "Show Top 10 ˅" if top_limit == 6 else "Show Top 6 ˄"
+
+    # CSS Khusus tombol pill 'Show Top 10' di bawah kartu (Sesuai Mockup UI)
+    st.markdown("""
+    <style>
+    div[data-testid="stColumn"] button[aria-label*="Show Top"] {
+        border-radius: 9999px !important;
+        font-size: 11px !important;
+        font-weight: 500 !important;
+        padding: 3px 14px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #475569 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        height: auto !important;
+        min-height: 28px !important;
+        margin: 0 auto !important;
+    }
+    div[data-testid="stColumn"] button[aria-label*="Show Top"]:hover {
+        border-color: #94a3b8 !important;
+        color: #0f172a !important;
+        background-color: #f8fafc !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     hard_items = hard_soft_data.get("hard_skills", [])
     soft_items = hard_soft_data.get("soft_skills", [])
     c_hard, c_soft = st.columns(2)
     with c_hard:
-        st.markdown('''
+        st.markdown(f'''
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
                 <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Top Hard Skills &amp; Tools</div>
-                <span style="background: #eff6ff; color: #1d4ed8; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">Top 6 Rank</span>
+                <span style="background: #eff6ff; color: #1d4ed8; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">{badge_label}</span>
             </div>
             <div style="font-size: 11px; color: #64748b; margin-bottom: 12px;">72% of skill ecosystem (Average 8.1 per profile)</div>
         ''', unsafe_allow_html=True)
-        hard_palette = ["#2563eb", "#0ea5e9", "#f97316", "#14b8a6", "#6366f1", "#ef4444"]
-        for idx, item in enumerate(hard_items[:6]):
+        hard_palette = ["#2563eb", "#0ea5e9", "#f97316", "#14b8a6", "#6366f1", "#ef4444", "#8b5cf6", "#06b6d4", "#f59e0b", "#ec4899"]
+        for idx, item in enumerate(hard_items[:top_limit]):
             rank, name = item["rank"], item["skill_name"]
             cnt, pct, end = item["count"], item["percentage"], item["endorsements"]
             badge = item["demand_badge"]
@@ -34,17 +64,26 @@ def render_hard_vs_soft_skills(hard_soft_data):
             </div>
             ''', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
+        # Tombol di bawah chart Hard Skills (Posisi Tengah)
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+        col_hl, col_hm, col_hr = c_hard.columns([1, 1.4, 1])
+        with col_hm:
+            if st.button(btn_label, key="btn_toggle_hard_skills", use_container_width=True):
+                st.session_state["top_skills_limit"] = 10 if top_limit == 6 else 6
+                st.rerun()
+
     with c_soft:
-        st.markdown('''
+        st.markdown(f'''
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
                 <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Top Soft Skills &amp; Leadership</div>
-                <span style="background: #fdf2f8; color: #be185d; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">Top 6 Rank</span>
+                <span style="background: #fdf2f8; color: #be185d; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">{badge_label}</span>
             </div>
             <div style="font-size: 11px; color: #64748b; margin-bottom: 12px;">28% of skill ecosystem (Average 3.2 per profile)</div>
         ''', unsafe_allow_html=True)
-        soft_palette = ["#10b981", "#7c3aed", "#ec4899", "#f59e0b", "#06b6d4", "#8b5cf6"]
-        for idx, item in enumerate(soft_items[:6]):
+        soft_palette = ["#10b981", "#7c3aed", "#ec4899", "#f59e0b", "#06b6d4", "#8b5cf6", "#14b8a6", "#f97316", "#3b82f6", "#6366f1"]
+        for idx, item in enumerate(soft_items[:top_limit]):
             rank, name = item["rank"], item["skill_name"]
             cnt, pct, end = item["count"], item["percentage"], item["endorsements"]
             badge = item["demand_badge"]
@@ -62,6 +101,14 @@ def render_hard_vs_soft_skills(hard_soft_data):
             </div>
             ''', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
+        # Tombol di bawah chart Soft Skills (Posisi Tengah)
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+        col_sl, col_sm, col_sr = c_soft.columns([1, 1.4, 1])
+        with col_sm:
+            if st.button(btn_label, key="btn_toggle_soft_skills", use_container_width=True):
+                st.session_state["top_skills_limit"] = 10 if top_limit == 6 else 6
+                st.rerun()
 
 def render_skills_distribution_by_category(skills_dist_data):
     """Render Ecosystem View Sisi Kiri (Horizontal Stacked Bar) - English UI."""

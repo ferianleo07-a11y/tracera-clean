@@ -43,7 +43,7 @@ def render_skill_network_graph(network_data):
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     st.markdown('''
         <div style="font-size: 10px; color: #64748b; margin-top: 4px; text-align: center;">
-            Node size = endorsement volume &middot; Line = co-occurrence strength &middot; <span style="color: #1d4ed8; cursor: pointer;">Filter node: &blacktriangledown;</span>
+            Node size = endorsement volume &middot; Line = co-occurrence strength
         </div>
     </div>
     ''', unsafe_allow_html=True)
