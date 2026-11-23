@@ -7,23 +7,41 @@
 import sys
 from pathlib import Path
 
+# 1. Resolusi Path: Menjamin modul dikenali baik dijalankan dari root maupun folder frontend
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
+FRONTEND_DIR = Path(__file__).resolve().parent
+if str(FRONTEND_DIR) not in sys.path:
+    sys.path.insert(0, str(FRONTEND_DIR))
 
 import streamlit as st
-from frontend.utils.api_client import api_client
-from frontend.ui_components.headers import render_header
-from frontend.ui_components.filters import render_cohort_filters, render_kpi_metric_cards
-from frontend.ui_components.pilar1_skill_charts import (
-    render_hard_vs_soft_skills, render_skills_distribution_by_category
-)
-from frontend.ui_components.pilar2_gap_charts import (
-    render_skill_network_graph, render_trending_gap_table,
-    render_insights_cards, render_skills_comparison
-)
 
-# 1. Konfigurasi Halaman Dasar Clean Light Mode (Tanpa Sidebar)
+# Impor dengan fallback otomatis
+try:
+    from frontend.utils.api_client import api_client, APIClient
+    from frontend.ui_components.headers import render_header
+    from frontend.ui_components.filters import render_cohort_filters, render_kpi_metric_cards
+    from frontend.ui_components.pilar1_skill_charts import (
+        render_hard_vs_soft_skills, render_skills_distribution_by_category
+    )
+    from frontend.ui_components.pilar2_gap_charts import (
+        render_skill_network_graph, render_trending_gap_table,
+        render_insights_cards, render_skills_comparison
+    )
+except ModuleNotFoundError:
+    from utils.api_client import api_client, APIClient
+    from ui_components.headers import render_header
+    from ui_components.filters import render_cohort_filters, render_kpi_metric_cards
+    from ui_components.pilar1_skill_charts import (
+        render_hard_vs_soft_skills, render_skills_distribution_by_category
+    )
+    from ui_components.pilar2_gap_charts import (
+        render_skill_network_graph, render_trending_gap_table,
+        render_insights_cards, render_skills_comparison
+    )
+
+# 2. Konfigurasi Halaman Dasar Clean Light Mode (Tanpa Sidebar)
 st.set_page_config(
     page_title="Skills Intelligence - Tracera",
     page_icon="💼",
@@ -31,7 +49,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. Injeksi Kustom CSS Tema Clean Light Sesuai Standar Tracera & Gambar Mockup
+# 3. Injeksi Kustom CSS Tema Clean Light Sesuai Standar Tracera & Gambar Mockup
 st.markdown("""
 <style>
     footer {visibility: hidden;}
@@ -124,7 +142,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def main():
-    # 3. Ambil data dropdown filter & payload dashboard terpusat dari FastAPI
+    # 4. Ambil data dropdown filter & payload dashboard terpusat dari FastAPI
     filter_opts = api_client.fetch_filter_options()
     uni = st.session_state.get("sel_uni", "All")
     prog = st.session_state.get("sel_prog", "All Study Programs")
@@ -132,17 +150,26 @@ def main():
     ind = st.session_state.get("sel_ind", "All")
     grad = st.session_state.get("sel_grad", "All")
     start_role = st.session_state.get("sel_start", "All")
+    lvl = st.session_state.get("filter_lvl", "All")
 
-    dashboard_data, is_conn = api_client.fetch_dashboard_data(uni, prog, role, ind, grad, start_role)
+    dashboard_data, is_conn = api_client.fetch_dashboard_data(
+        university=uni,
+        study_program=prog,
+        target_role=role,
+        industry=ind,
+        graduation_year=grad,
+        starting_role=start_role,
+        career_level=lvl
+    )
 
-    # 4. Header Bar (Reset, Export CSV, Share view copy link)
+    # 5. Header Bar (Reset, Export CSV, Share view copy link)
     render_header(dashboard_data)
 
-    # 5. Cohort Filters Bar & 4 Borderless KPI Cards
+    # 6. Cohort Filters Bar & 4 Borderless KPI Cards
     render_cohort_filters(filter_opts)
     render_kpi_metric_cards(dashboard_data.get("kpi", {}))
 
-    # 6. DUA TAB UTAMA DASHBOARD (Skills Explorer & Skills Comparison) Berupa Segmented Control (Rata Kiri)
+    # 7. DUA TAB UTAMA DASHBOARD (Skills Explorer & Skills Comparison) Berupa Segmented Control (Rata Kiri)
     selected_tab = st.segmented_control(
         "Main Navigation",
         options=["Skills Explorer", "Skills Comparison"],
@@ -191,7 +218,10 @@ def main():
         else:
             c_dist, c_net = st.columns([1.1, 0.9])
             with c_dist:
-                render_skills_distribution_by_category(dashboard_data.get("skills_distribution", {}))
+                render_skills_distribution_by_category(
+                    dashboard_data.get("skills_distribution", {}),
+                    unique_skills_count=dashboard_data.get("kpi", {}).get("total_unique_skills")
+                )
             with c_net:
                 render_skill_network_graph(dashboard_data.get("skill_network", {}))
             render_trending_gap_table(dashboard_data.get("trending_gap", {}))
@@ -199,11 +229,13 @@ def main():
     else:
         render_skills_comparison(
             api_client,
+            selected_university=uni,
             study_program=prog,
             target_role=role,
             industry=ind,
             graduation_year=grad,
-            starting_role=start_role
+            starting_role=start_role,
+            career_level=lvl
         )
 
 if __name__ == "__main__":

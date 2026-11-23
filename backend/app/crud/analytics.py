@@ -4,7 +4,7 @@ from itertools import combinations
 import networkx as nx
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from backend.app.core.config import settings
 from backend.crud.skill_cleaner import is_soft_skill, normalize_skill
@@ -24,9 +24,9 @@ DIMENSION_TAXONOMY = {
     "Strategic Thinking": ["strategic planning", "business strategy", "business development", "project management", "operations management", "budgeting", "agile", "scrum", "product management", "product owner"],
     "Problem Solving": ["problem solving", "analytical skills", "critical thinking", "research", "troubleshooting", "decision making", "creativity"],
     "Leadership": ["leadership", "team management", "management", "people management", "coaching", "mentoring", "team leadership", "organizational leadership"],
-    "Adaptability": ["adaptability", "time management", "communication", "public speaking", "presentation skills", "negotiation", "interpersonal skills", "customer service", "collaboration", 
-"teamwork", "work ethic"]
+    "Adaptability": ["adaptability", "time management", "communication", "public speaking", "presentation skills", "negotiation", "interpersonal skills", "customer service", "collaboration", "teamwork", "work ethic"]
 }
+
 DIMENSION_COLORS = {
     "Programming Language": "#1d4ed8",  # Biru Tracera
     "Data Analytics": "#f97316",        # Oranye
@@ -45,63 +45,120 @@ def get_skill_dimension(skill_name: str) -> str:
                 return dim
     return "Technical Expertise"
 
-def map_skill_taxonomy(skill_name: str, is_soft: bool):
-    """Klasifikasi 4 Kategori & Subkategori Sesuai IPYNB Tabel 4."""
+def map_skill_taxonomy(skill_name: str, is_soft: bool) -> Tuple[str, str]:
+    """
+    Pemetaan Taksonomi 4 Kategori & Subkategori Proporsional.
+    Memisahkan Frontend & Web, Engineering Systems, Data, Cloud, dan Backend
+    sehingga Other Tech tidak mendominasi secara berlebihan.
+    """
     s = str(skill_name).lower().strip()
-    if is_soft:
-        if any(k in s for k in ["communicat", "public speaking", "presentation", "listen", "persuas", "interpersonal", "relasi"]):
-            return "Soft Skills & Leadership", "Communication"
-        elif any(k in s for k in ["problem solv", "critical think", "analitik", "analytic", "decision", "creativ"]):
-         return "Soft Skills & Leadership", "Problem Solving"
-        elif any(k in s for k in ["leader", "lead", "team", "tim", "coaching", "mentor", "collaborat", "organis"]):
-            return "Soft Skills & Leadership", "Leadership"
+
+    # 1. Soft Skills & Leadership
+    if is_soft or any(k in s for k in [
+        'english', 'indonesian', 'bahasa', 'public speak', 'presentation', 'interpersonal', 
+        'listening', 'negotiat', 'creative think', 'critical think', 'decision mak', 
+        'time management', 'work ethic', 'writing', 'copywriting', 'editing', 'teaching', 
+        'tutoring', 'education', 'research', 'multitasking', 'troubleshoot', 'adaptab'
+    ]):
+        if any(k in s for k in ['lead', 'manage', 'mentor', 'coach', 'supervis', 'team management']):
+            return 'Soft Skills & Leadership', 'Leadership'
+        elif any(k in s for k in ['communicat', 'present', 'public speak', 'writ', 'interpersonal', 'english', 'indonesian', 'bahasa', 'speak', 'listen', 'edit']):
+            return 'Soft Skills & Leadership', 'Communication'
+        elif any(k in s for k in ['problem', 'solv', 'analyt', 'critic', 'research', 'decision', 'creativ', 'innovat', 'troubleshoot']):
+            return 'Soft Skills & Leadership', 'Problem Solving'
         else:
-            return "Soft Skills & Leadership", "Other Soft"
+            return 'Soft Skills & Leadership', 'Other Soft'
+
+    # 2. Tools & Software Platforms
+    if any(k in s for k in [
+        'git', 'github', 'gitlab', 'docker', 'kubernetes', 'k8s', 'postman', 'vscode', 'intellij', 
+        'jira', 'confluence', 'trello', 'ide', 'bitbucket', 'npm', 'pip', 'maven', 'gradle', 'jenkins'
+    ]):
+        return 'Tools & Software Platforms', 'Dev Tools / IDEs'
+    elif any(k in s for k in [
+        'office', 'word', 'powerpoint', 'excel', 'spreadsheet', 'google workspace', 'slack', 
+        'zoom', 'teams', 'sap', 'erp', 'salesforce', 'crm', 'hubspot', 'canva', 'photoshop', 
+        'illustrator', 'figma', 'coreldraw', 'visio', 'adobe', 'windows', 'macos', 'global mapper',
+        'solidworks', 'sketchup', 'revit', 'surpac', 'microsoft project'
+    ]):
+        return 'Tools & Software Platforms', 'Software Platforms'
+
+    # 3. Business & Product Strategy
+    if any(k in s for k in ['project management', 'project plan', 'project coord', 'scrum', 'agile', 'kanban', 'sprint', 'pmp', 'waterfall', 'change management', 'scheduling', 'contract management']):
+        return 'Business & Product Strategy', 'Project Mgmt'
+    elif any(k in s for k in ['product owner', 'product management', 'product strategy', 'roadmap', 'user story', 'backlog', 'product develop', 'r&d', 'research and development', 'product knowledge']):
+        return 'Business & Product Strategy', 'Product Owner'
+    elif any(k in s for k in [
+        'business', 'market', 'sales', 'financ', 'bank', 'account', 'audit', 'tax', 'budget', 
+        'consult', 'operation', 'risk', 'admin', 'strateg', 'public relation', 'social media', 
+        'event', 'hr', 'human resources', 'recruit', 'employee', 'talent', 'stakeholder', 
+        'customer', 'advertising', 'k3', 'ehs', 'safety', 'document management', 'compliance', 
+        'procurement', 'inventory', 'entrepreneur', 'reporting', 'client relation', 'community development',
+        'investment', 'real estate', 'performance management', 'media relation', 'seo', 'cash management', 'credit'
+    ]):
+        return 'Business & Product Strategy', 'Business Analysis'
+
+    # 4. Technical & Engineering
+    if any(k in s for k in [
+        'data', 'sql', 'analytic', 'bi', 'machine learning', 'deep learning', 'ai', 'tableau', 
+        'power bi', 'hadoop', 'spark', 'pandas', 'statistic', 'database', 'r programming', 'r language', 'data science'
+    ]):
+        return 'Technical & Engineering', 'Data'
+    elif any(k in s for k in ['cloud', 'aws', 'gcp', 'azure', 'devops', 'ci/cd', 'infra', 'linux', 'server', 'network', 'cyber', 'security']):
+        return 'Technical & Engineering', 'Cloud'
+    elif any(k in s for k in [
+        'react', 'html', 'css', 'javascript', 'typescript', 'frontend', 'front-end', 'front end', 
+        'web design', 'web develop', 'vue', 'angular', 'web', 'ui/ux', 'ui', 'ux', 'tailwind', 
+        'bootstrap', 'graphic design', 'design', 'photograph', 'android'
+    ]):
+        return 'Technical & Engineering', 'Frontend & Web'
+    elif any(k in s for k in [
+        'python', 'java', 'c++', 'c#', 'php', 'go', 'golang', 'backend', 'back end', 'api', 
+        'rest', 'node', 'django', 'fastapi', 'spring', 'laravel', 'microservice', 'system architecture', 
+        'software develop', 'software engineer', 'software', 'programming', 'distributed systems'
+    ]):
+        return 'Technical & Engineering', 'Backend'
+    elif any(k in s for k in [
+        'autocad', 'gis', 'arcgis', 'geolog', 'geophys', 'mapping', 'engineering', 'cad', 
+        'quality control', 'qc', 'qa', 'quality assurance', 'industrial', 'electrical', 
+        'mechanical', 'civil', 'hardware', 'laboratory', 'lab', 'iot', 'telecom', 'chemical', 
+        'petroleum', 'petrel', 'petrophysics', 'minescape', 'remote sensing', 'mining',
+        'manufacturing', 'physics', 'mathematics', 'agriculture', 'environmental', 'surveying'
+    ]):
+        return 'Technical & Engineering', 'Engineering Systems'
     else:
-        if any(k in s for k in ["git", "docker", "container", "jira", "agile", "scrum", "ci/cd", "linux", "kubernetes", "postman"]):
-            if any(k in s for k in ["git", "docker", "container"]):
-                return "Tools & Software Platforms", "Git / Docker"
-            elif any(k in s for k in ["jira", "agile", "scrum"]):
-                return "Tools & Software Platforms", "Jira / Agile"
-            else:
-                return "Tools & Software Platforms", "CI/CD Tools"
-        elif any(k in s for k in ["project", "proyek", "product", "produk", "strateg", "business", "bisnis", "financ", "market", "sales"]):
-            if any(k in s for k in ["project", "proyek"]):
-                return "Business & Product Strategy", "Project Mgmt"
-            elif any(k in s for k in ["product", "produk", "owner"]):
-                return "Business & Product Strategy", "Product Owner"
-            else:
-                return "Business & Product Strategy", "Business Analysis"
-        else:
-            if any(k in s for k in ["cloud", "aws", "gcp", "azure", "devops", "infra", "network"]):
-                return "Technical & Engineering", "Cloud"
-            elif any(k in s for k in ["data", "sql", "database", "analytics", "bi", "tableau", "statistic"]):
-                return "Technical & Engineering", "Data"
-            elif any(k in s for k in ["python", "backend", "java", "go", "golang", "c++", "php", "api", "microservice", "architect"]):
-                return "Technical & Engineering", "Backend"
-            else:
-                return "Technical & Engineering", "Other Tech"
+        return 'Technical & Engineering', 'Other Tech'
+
 def build_filter_query(
     university: Optional[str] = None,
     study_program: Optional[str] = None,
     target_role: Optional[str] = None,
     industry: Optional[str] = None,
     graduation_year: Optional[str] = None,
-    starting_role: Optional[str] = None
+    starting_role: Optional[str] = None,
+    career_level: Optional[str] = None
 ) -> Dict[str, Any]:
     """Membangun query filter dinamis MongoDB Atlas berdasarkan pilihan cohort filters."""
     q = {}
-    if university and university.lower() not in ['all', 'semua']:
+    if university and str(university).lower() not in ['all', 'semua']:
         q['universities'] = university
-    if study_program and study_program.lower() not in ['all', 'semua', 'all study programs']:
+    if study_program and str(study_program).lower() not in ['all', 'semua', 'all study programs']:
         q['study_programs'] = study_program
-    if target_role and target_role.lower() not in ['all', 'semua']:
+    if target_role and str(target_role).lower() not in ['all', 'semua']:
         q['target_role'] = target_role
-    if industry and industry.lower() not in ['all', 'semua', '']:
-        q['industry'] = {'$regex': f'^{re.escape(industry.strip())}$', '$options': 'i'}
+    elif career_level and str(career_level).lower() not in ['all', 'semua', '']:
+        c_low = str(career_level).lower()
+        if 'entry' in c_low:
+            q['target_role'] = {'$in': ['Marketing Associate']}
+        elif 'mid' in c_low or 'senior' in c_low:
+            q['target_role'] = {'$in': ['Software Engineer', 'Data Scientist', 'Business Analyst', 'Data Analyst', 'Product Manager', 'Consultant']}
+        elif 'exec' in c_low or 'lead' in c_low or 'manager' in c_low:
+            q['target_role'] = {'$in': ['Data Lead', 'Engineering Manager', 'Marketing Manager', 'Operations Manager', 'Technical Lead']}
+    if industry and str(industry).lower() not in ['all', 'semua', '']:
+        q['industry'] = {'$regex': f'^{re.escape(str(industry).strip())}$', '$options': 'i'}
     if graduation_year and str(graduation_year).lower() not in ['all', 'semua', ''] and str(graduation_year).isdigit():
         q['graduation_year'] = int(graduation_year)
-    if starting_role and starting_role.lower() not in ['all', 'semua', '']:
+    if starting_role and str(starting_role).lower() not in ['all', 'semua', '']:
         q['starting_role'] = starting_role
     return q
 
@@ -114,7 +171,6 @@ async def get_filter_options(db: AsyncIOMotorDatabase) -> Dict[str, List[str]]:
     start_roles = await coll.distinct('starting_role')
     inds = ["Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"]
 
-    # 6 Kampus Standar Utama Tracera diposisikan di paling atas, diikuti seluruh kampus lain secara alfabetis
     canonical_unis = [
         "Universitas Gadjah Mada",
         "Universitas Indonesia",
@@ -126,56 +182,50 @@ async def get_filter_options(db: AsyncIOMotorDatabase) -> Dict[str, List[str]]:
     other_unis = sorted([u for u in unis if u and u not in canonical_unis])
     ordered_unis = [u for u in canonical_unis if u in unis] + other_unis
 
-    # Daftar Target Role & Starting Role Standar Tracera (Junior & Senior digabung ke role utama)
+    canonical_progs = [
+        "Computer Science & Software Engineering",
+        "Data Science & Quantitative Analytics",
+        "Engineering & Industrial Technology",
+        "Business, Management & Economics",
+        "Finance, Banking & Accounting"
+    ]
+    other_progs = sorted([p for p in progs if p and p not in canonical_progs])
+    ordered_progs = [p for p in canonical_progs if p in progs] + other_progs
+
     tracera_17_roles = [
-        # Engineering
         "Software Engineer",
         "Technical Lead",
         "Engineering Manager",
-        
-        # Data
         "Data Analyst",
         "Data Scientist",
         "Data Lead",
-        
-        # Product
         "Product Owner",
         "Product Manager",
-        "Head of Product",
-        
-        # Business
-        "Business Analyst",
-        "Consultant",
-        "Operations Manager",
-        
-        # Marketing
-        "Marketing Associate",
-        "Marketing Manager"
+        "Associate Product Manager",
+        "Product Lead",
+        "DevOps Engineer",
+        "Cloud Architect",
+        "AI/ML Engineer",
+        "Tech Consultant",
+        "Cybersecurity Specialist",
+        "UI/UX Designer",
+        "Scrum Master"
     ]
-    # Tampilkan yang memiliki alumni di database terlebih dahulu, disusul peran standar lainnya
-    ordered_roles = [r for r in tracera_17_roles if r in roles] + [r for r in tracera_17_roles if r not in roles]
-    ordered_grad_years = [str(y) for y in sorted([int(y) for y in grad_years if y is not None and str(y).isdigit()], reverse=True)]
-    valid_start_roles = [s for s in start_roles if s]
-    ordered_start_roles = [r for r in tracera_17_roles if r in valid_start_roles] + [r for r in tracera_17_roles if r not in valid_start_roles]
+    other_roles = sorted([r for r in roles if r and r not in tracera_17_roles])
+    ordered_roles = [r for r in tracera_17_roles if r in roles] + other_roles
 
-    canonical_study_programs = [
-        "Computer Science & Software Engineering",
-        "Data Science & Quantitative Analytics",
-        "Finance, Banking & Accounting",
-        "Engineering & Industrial Technology",
-        "Business, Management & Economics"
-    ]
-    ordered_progs = [p for p in canonical_study_programs if p in progs] + [p for p in canonical_study_programs if p not in progs]
+    # Urutkan graduation year dari tahun terbesar (2027, 2026, dst)
+    clean_grad_years = sorted([int(y) for y in grad_years if y is not None and str(y).isdigit()], reverse=True)
 
     return {
-        'universities': ordered_unis,
-        'study_programs': ordered_progs,
-        'target_roles': ordered_roles,
-        'industries': inds,
-        'graduation_years': ordered_grad_years,
-        'starting_roles': ordered_start_roles,
-        'career_levels': ["All", "Entry-Level", "Mid-Senior", "Executive"],
-        'locations': ["All", "Indonesia", "Singapore", "Remote"]
+        "universities": ordered_unis or canonical_unis,
+        "study_programs": ordered_progs or [p for p in progs if p],
+        "target_roles": ordered_roles or roles,
+        "industries": inds,
+        "graduation_years": [str(y) for y in clean_grad_years],
+        "starting_roles": [s for s in start_roles if s],
+        "career_levels": ["Entry-Level", "Mid-Senior", "Executive"],
+        "locations": ["Indonesia", "Singapore", "Remote", "Other"]
     }
 
 async def calculate_kpi_metrics(
@@ -187,44 +237,53 @@ async def calculate_kpi_metrics(
     if docs is None:
         coll = db[settings.PROCESSED_COLLECTION_NAME]
         docs = await coll.find(filter_query).to_list(length=10000)
+
     if not docs:
-        if filter_query:
-            return {
-                'matched_alumni': 0, 'total_unique_skills': 0,
-                'skill_type_ratio': '0% : 0%', 'trending_skills_count': 0,
-                'mom_growth_str': '0% MoM', 'avg_skills_per_profile': 0.0, 'top_endorsed_skills': 0
-            }
         return {
-            'matched_alumni': 240, 'total_unique_skills': 2850,
-            'skill_type_ratio': '72% : 28%', 'trending_skills_count': 55,
-            'mom_growth_str': '+18% MoM', 'avg_skills_per_profile': 8.1, 'top_endorsed_skills': 740
+            'matched_alumni': 0,
+            'total_unique_skills': 0,
+            'skill_type_ratio': '0% : 0%',
+            'trending_skills_count': 0,
+            'mom_growth_str': '+0% MoM',
+            'avg_skills_per_profile': 0.0,
+            'top_endorsed_skills': 0
         }
+
     total_profiles = len(docs)
     all_skills = []
     recent_skills = set()
     old_skills = set()
+    total_endorsements = 0
+
     for d in docs:
-        p_skills = [s['name'] for s in d.get('skills', []) if isinstance(s, dict)]
+        p_skills = [s['name'] for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')]
         all_skills.extend(p_skills)
-        ly = d.get('latest_work_year')
+        for s in d.get('skills', []):
+            if isinstance(s, dict):
+                total_endorsements += s.get('endorsements', 0)
+        ly = d.get('latest_work_year') or d.get('graduation_year')
         if ly and ly >= 2026:
             recent_skills.update(p_skills)
         elif ly and ly <= 2022:
             old_skills.update(p_skills)
+
     unique_skills = set(all_skills)
     keahlian_baru = recent_skills - old_skills
-    total_skill_tren = len(keahlian_baru) if len(keahlian_baru) > 0 else 55
+    total_skill_tren = len(keahlian_baru)
+
     if len(old_skills) > 0:
         mom_val = ((len(recent_skills) - len(old_skills)) / len(old_skills)) * 100
         mom_str = f"+{mom_val:.0f}% MoM" if mom_val >= 0 else f"{mom_val:.0f}% MoM"
     else:
-        mom_str = "+18% MoM"
+        mom_str = f"+{len(recent_skills)} new" if len(recent_skills) > 0 else "+0% MoM"
+
     n_soft_cnt = sum(1 for s in all_skills if is_soft_skill(s))
     n_hard_cnt = len(all_skills) - n_soft_cnt
     tot_cnt = max(n_hard_cnt + n_soft_cnt, 1)
     pct_hard = round((n_hard_cnt / tot_cnt) * 100)
     pct_soft = 100 - pct_hard
     ratio_str = f"{pct_hard}% : {pct_soft}%"
+
     return {
         'matched_alumni': total_profiles,
         'total_unique_skills': len(unique_skills),
@@ -232,113 +291,88 @@ async def calculate_kpi_metrics(
         'trending_skills_count': total_skill_tren,
         'mom_growth_str': mom_str,
         'avg_skills_per_profile': round(len(all_skills) / max(total_profiles, 1), 1),
-        'top_endorsed_skills': 740
+        'top_endorsed_skills': total_endorsements
     }
 
 async def analyze_hard_vs_soft_skills(
     db: AsyncIOMotorDatabase,
     filter_query: Dict[str, Any],
-    top_n: int = 10,
+    max_hard: int = 10,
+    max_soft: int = 10,
     docs: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]:
-    """Agregasi Dinamis Top Hard vs Soft Skills dari Database Sesuai Tabel 4 IPYNB."""
-    hard_items, soft_items = [], []
-    if docs is not None:
-        total_profiles = len(docs) or 240
-        skill_counts = Counter()
-        skill_endorsements = Counter()
-        for d in docs:
-            for s in d.get("skills", []):
-                if isinstance(s, dict):
-                    name = s.get("name")
-                    if name:
-                        skill_counts[name] += 1
-                        skill_endorsements[name] += s.get("endorsements", 0)
-        for name, cnt in skill_counts.most_common():
-            end = skill_endorsements.get(name, 0)
-            pct = round((cnt / total_profiles) * 100, 1)
-            if is_soft_skill(name):
-                if len(soft_items) < top_n:
-                    badge = "[Universal ★★★]" if pct >= 70 else "[High ★★]"
-                    soft_items.append({
-                        "rank": len(soft_items) + 1, "skill_name": name, "count": cnt,
-                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": "#10b981"
-                    })
-            else:
-                if len(hard_items) < top_n:
-                    badge = "[Demand: ★★★]" if pct >= 60 else ("[Deficit]" if "Architect" in name else "[Demand: ★★]")
-                    color = "#ef4444" if "Deficit" in badge else "#1d4ed8"
-                    hard_items.append({
-                        "rank": len(hard_items) + 1, "skill_name": name, "count": cnt,
-                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": color
-                    })
-            if len(hard_items) >= top_n and len(soft_items) >= top_n:
-                break
-    else:
+    """Peringkat Hard vs Soft Skills Dinamis Sesuai Tabel 1 & 2 IPYNB."""
+    if docs is None:
         coll = db[settings.PROCESSED_COLLECTION_NAME]
-        pipeline = [
-            {"$match": filter_query},
-            {"$unwind": "$skills"},
-            {"$group": {
-                "_id": "$skills.name",
-                "count": {"$sum": 1},
-                "endorsements": {"$sum": "$skills.endorsements"}
-            }},
-            {"$sort": {"count": -1}}
-        ]
-        cursor = coll.aggregate(pipeline)
-        total_profiles = await coll.count_documents(filter_query) or 240
-        async for doc in cursor:
-            name = doc["_id"]
-            cnt = doc["count"]
-            end = doc.get("endorsements", 0)
-            pct = round((cnt / total_profiles) * 100, 1)
-            if is_soft_skill(name):
-                if len(soft_items) < top_n:
-                    badge = "[Universal ★★★]" if pct >= 70 else "[High ★★]"
-                    soft_items.append({
-                        "rank": len(soft_items) + 1, "skill_name": name, "count": cnt,
-                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": "#10b981"
-                    })
+        docs = await coll.find(filter_query).to_list(length=10000)
+
+    total_profiles = max(len(docs), 1)
+    skill_counts = Counter()
+    skill_endorsements = Counter()
+    tot_hard_freq, tot_soft_freq = 0, 0
+
+    for d in docs:
+        p_skills = [s['name'] for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')]
+        for s in set(p_skills):
+            skill_counts[s] += 1
+            if is_soft_skill(s):
+                tot_soft_freq += 1
             else:
-                if len(hard_items) < top_n:
-                    badge = "[Demand: ★★★]" if pct >= 60 else ("[Deficit ��]" if "Architect" in name else "[Demand: ★★]")
-                    color = "#ef4444" if "Deficit" in badge else "#1d4ed8"
-                    hard_items.append({
-                        "rank": len(hard_items) + 1, "skill_name": name, "count": cnt,
-                        "percentage": pct, "endorsements": end, "demand_badge": badge, "bar_color": color
-                    })
-    if not hard_items and not (docs is not None and len(docs) == 0 and filter_query):
-        hard_items = [
-            {"rank": 1, "skill_name": "Python Programming", "count": 182, "percentage": 75.8, "endorsements": 740, "demand_badge": "[Demand: ★★★]", "bar_color": "#1d4ed8"},
-            {"rank": 2, "skill_name": "SQL & Relational Databases", "count": 156, "percentage": 65.0, "endorsements": 498, "demand_badge": "[Demand: ★★★]", "bar_color": "#1d4ed8"},
-            {"rank": 3, "skill_name": "Cloud Infrastructure (AWS/GCP)", "count": 112, "percentage": 46.7, "endorsements": 315, "demand_badge": "[Surging ▲]", "bar_color": "#f97316"},
-            {"rank": 4, "skill_name": "System Architecture & Microservices", "count": 98, "percentage": 40.8, "endorsements": 170, "demand_badge": "[Deficit ��]", "bar_color": "#ef4444"},
-            {"rank": 5, "skill_name": "Data Structures & Algorithms", "count": 88, "percentage": 36.7, "endorsements": 110, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
-            {"rank": 6, "skill_name": "Docker & Containerization", "count": 76, "percentage": 31.7, "endorsements": 94, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
-            {"rank": 7, "skill_name": "Git & Version Control", "count": 68, "percentage": 28.3, "endorsements": 82, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
-            {"rank": 8, "skill_name": "CI/CD & DevOps Automation", "count": 58, "percentage": 24.2, "endorsements": 76, "demand_badge": "[Surging ▲]", "bar_color": "#f97316"},
-            {"rank": 9, "skill_name": "REST API & GraphQL Development", "count": 52, "percentage": 21.7, "endorsements": 64, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"},
-            {"rank": 10, "skill_name": "Linux System Administration", "count": 46, "percentage": 19.2, "endorsements": 58, "demand_badge": "[Demand: ★★]", "bar_color": "#1d4ed8"}
-        ]
-    if not soft_items and not (docs is not None and len(docs) == 0 and filter_query):
-        soft_items = [
-            {"rank": 1, "skill_name": "Problem Solving & Critical Thinking", "count": 210, "percentage": 87.5, "endorsements": 512, "demand_badge": "[Universal ★★★]", "bar_color": "#10b981"},
-            {"rank": 2, "skill_name": "Cross-functional Collaboration", "count": 178, "percentage": 74.2, "endorsements": 245, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
-            {"rank": 3, "skill_name": "Stakeholder & Client Communication", "count": 134, "percentage": 55.8, "endorsements": 180, "demand_badge": "[Surging ▲]", "bar_color": "#f97316"},
-            {"rank": 4, "skill_name": "Agile & Scrum Coordination", "count": 126, "percentage": 52.5, "endorsements": 165, "demand_badge": "[Standard ★★]", "bar_color": "#10b981"},
-            {"rank": 5, "skill_name": "Adaptability & Continuous Learning", "count": 108, "percentage": 45.0, "endorsements": 140, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
-            {"rank": 6, "skill_name": "Team Leadership & Mentoring", "count": 92, "percentage": 38.3, "endorsements": 125, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
-            {"rank": 7, "skill_name": "Strategic Analytical Thinking", "count": 85, "percentage": 35.4, "endorsements": 110, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
-            {"rank": 8, "skill_name": "Public Speaking & Presentation", "count": 78, "percentage": 32.5, "endorsements": 95, "demand_badge": "[High ★★]", "bar_color": "#10b981"},
-            {"rank": 9, "skill_name": "Time & Priority Management", "count": 70, "percentage": 29.2, "endorsements": 84, "demand_badge": "[Standard ★★]", "bar_color": "#10b981"},
-            {"rank": 10, "skill_name": "Conflict Resolution & Negotiation", "count": 62, "percentage": 25.8, "endorsements": 72, "demand_badge": "[Standard ★★]", "bar_color": "#10b981"}
-        ]
+                tot_hard_freq += 1
+        for s in d.get('skills', []):
+            if isinstance(s, dict) and s.get('name'):
+                skill_endorsements[s['name']] += s.get('endorsements', 0)
+
+    palette_hard = ["#1d4ed8", "#0284c7", "#f97316", "#0ea5e9", "#4f46e5", "#ef4444", "#3b82f6", "#2563eb", "#6366f1", "#0284c7"]
+    palette_soft = ["#10b981", "#8b5cf6", "#ec4899", "#d97706", "#06b6d4", "#10b981", "#8b5cf6", "#ec4899", "#d97706", "#06b6d4"]
+
+    hard_items, soft_items = [], []
+    for name, cnt in skill_counts.most_common():
+        end = skill_endorsements.get(name, 0)
+        pct = round((cnt / max(total_profiles, 1)) * 100, 1)
+        if is_soft_skill(name):
+            if len(soft_items) < max_soft:
+                badge = "[Universal ★★★]" if pct >= 60 else "[High ★★]"
+                soft_items.append({
+                    "rank": len(soft_items) + 1,
+                    "skill_name": name,
+                    "count": cnt,
+                    "percentage": pct,
+                    "endorsements": end,
+                    "demand_badge": badge,
+                    "bar_color": palette_soft[len(soft_items) % len(palette_soft)]
+                })
+        else:
+            if len(hard_items) < max_hard:
+                badge = "[Demand: ★★★]" if pct >= 50 else ("[Surging ▲]" if pct >= 30 else "[Demand: ★★]")
+                color = palette_hard[len(hard_items) % len(palette_hard)]
+                hard_items.append({
+                    "rank": len(hard_items) + 1,
+                    "skill_name": name,
+                    "count": cnt,
+                    "percentage": pct,
+                    "endorsements": end,
+                    "demand_badge": badge,
+                    "bar_color": color
+                })
+        if len(hard_items) >= max_hard and len(soft_items) >= max_soft:
+            break
+
+    tot_all = tot_hard_freq + tot_soft_freq
+    if tot_all > 0:
+        h_eco = round((tot_hard_freq / tot_all) * 100)
+        s_eco = 100 - h_eco
+    else:
+        h_eco, s_eco = 72, 28
+
+    avg_h = round(tot_hard_freq / max(total_profiles, 1), 1)
+    avg_s = round(tot_soft_freq / max(total_profiles, 1), 1)
+
     return {
         "hard_skills": hard_items,
         "soft_skills": soft_items,
-        "hard_summary": "72% of skill ecosystem (Average 8.1 per profile)",
-        "soft_summary": "28% of skill ecosystem (Average 3.2 per profile)"
+        "hard_summary": f"{h_eco}% of skill ecosystem (Average {avg_h} per profile)",
+        "soft_summary": f"{s_eco}% of skill ecosystem (Average {avg_s} per profile)"
     }
 
 async def analyze_skills_distribution_by_category(
@@ -349,32 +383,48 @@ async def analyze_skills_distribution_by_category(
     """Distribusi 4 Kategori Keahlian Dinamis Sesuai Tabel 4 IPYNB."""
     if docs is None:
         coll = db[settings.PROCESSED_COLLECTION_NAME]
-        docs = await coll.find(filter_query).to_list(length=5000)
+        docs = await coll.find(filter_query).to_list(length=10000)
+
     cat_counts = Counter()
     subcat_counts = {}
+    unique_skills = set()
+
     for d in docs:
         for s in d.get("skills", []):
             name = s.get("name") if isinstance(s, dict) else s
             if name:
+                unique_skills.add(name)
                 c, sub = map_skill_taxonomy(name, is_soft_skill(name))
                 cat_counts[c] += 1
                 if c not in subcat_counts:
                     subcat_counts[c] = Counter()
                 subcat_counts[c][sub] += 1
-    total_all = sum(cat_counts.values()) or 2850
+
+    total_all = max(sum(cat_counts.values()), 1)
     categories = []
-    order = ["Technical & Engineering", "Soft Skills & Leadership", "Business & Product Strategy", "Tools & Software Platforms"]
+    order = [
+        "Technical & Engineering",
+        "Soft Skills & Leadership",
+        "Business & Product Strategy",
+        "Tools & Software Platforms"
+    ]
     for cat_name in order:
         cnt = cat_counts.get(cat_name, 0)
-        pct = round((cnt / total_all) * 100, 1) if total_all > 0 else 25.0
-        subs = dict(subcat_counts.get(cat_name, {}))
+        pct = round((cnt / total_all) * 100, 1) if sum(cat_counts.values()) > 0 else 0.0
+        subs_counter = subcat_counts.get(cat_name, Counter())
+        subs = dict(subs_counter.most_common()) if hasattr(subs_counter, 'most_common') else {}
         categories.append({
             "category": cat_name,
             "percentage": pct,
-            "total": cnt if cnt > 0 else 500,
-            "subcategories": subs if subs else {"Sub A": 100, "Sub B": 50}
+            "total": cnt,
+            "subcategories": subs
         })
-    return {"categories": categories, "total_skills_count": total_all}
+
+    return {
+        "categories": categories,
+        "total_skills_count": sum(cat_counts.values()),
+        "unique_skills_count": len(unique_skills)
+    }
 
 async def analyze_skill_network(
     db: AsyncIOMotorDatabase,
@@ -386,55 +436,69 @@ async def analyze_skill_network(
     if docs is None:
         coll = db[settings.PROCESSED_COLLECTION_NAME]
         docs = await coll.find(filter_query).to_list(length=3000)
+
     skill_freq = Counter()
+    skill_endorsements = Counter()
     pair_freq = Counter()
+
     for d in docs:
-        clean_s = list(set([s.get("name") for s in d.get("skills", []) if isinstance(s, dict)]))
+        clean_s = list(set([s.get("name") for s in d.get("skills", []) if isinstance(s, dict) and s.get("name")]))
         for s in clean_s:
             skill_freq[s] += 1
+        for s in d.get("skills", []):
+            if isinstance(s, dict) and s.get("name"):
+                skill_endorsements[s["name"]] += s.get("endorsements", 0)
         for a, b in combinations(sorted(clean_s), 2):
             pair_freq[(a, b)] += 1
+
     active_nodes = [s for s, _ in skill_freq.most_common(top_n)]
     if not active_nodes:
-        active_nodes = ["Python", "Data Science", "SQL", "Cloud GCP", "Tableau", "Project Mgmt", "Scrum"]
+        return {"nodes": [], "edges": [], "central_hub": "Python"}
+
     central_hub = active_nodes[0]
     G = nx.Graph()
     for s in active_nodes:
         G.add_node(s, count=skill_freq.get(s, 1), dim=get_skill_dimension(s))
     for (a, b), w in pair_freq.items():
         if a in active_nodes and b in active_nodes:
-         G.add_edge(a, b, weight=w)
-    pos = nx.spring_layout(G, pos={central_hub: np.array([0.0, 0.0])}, fixed=[central_hub], k=0.75, iterations=60, seed=42)
+            G.add_edge(a, b, weight=w)
+
+    pos = nx.spring_layout(G, seed=42, k=0.6, iterations=50)
     nodes = []
     total_profiles = max(len(docs), 1)
-    max_c = max([skill_freq.get(s, 1) for s in active_nodes]) or 1
+    
+    # Safe max_endorse: tidak pernah 0 agar tidak ZeroDivisionError
+    max_endorse = max([skill_endorsements.get(n, 0) for n in active_nodes] or [1]) or 1
+
     for s in active_nodes:
         x, y = pos[s]
-        cnt = skill_freq.get(s, 100)
         dim = get_skill_dimension(s)
-        sz = 20 + (cnt / max_c) * 20
-        if s == central_hub:
-            sz += 10
+        ends = skill_endorsements.get(s, 0)
+        freq = skill_freq.get(s, 1)
+        sz = 20 + (ends / max_endorse) * 22
         nodes.append({
             "id": s.lower().replace(" ", "_"),
             "label": s,
-            "category": "Tech" if dim in ["Programming Language", "Technical Expertise"] else "Business",
+            "category": "Soft Skill" if is_soft_skill(s) else "Hard Skill",
             "dimension": dim,
-            "endorsements": cnt * 4,
-            "frequency": cnt,
-            "pct": round((cnt / total_profiles) * 100, 1),
-            "size": sz,
+            "endorsements": ends,
+            "frequency": freq,
+            "pct": round((freq / total_profiles) * 100, 1),
+            "size": round(sz, 1),
             "color": DIMENSION_COLORS.get(dim, "#0284c7"),
             "x": float(x),
             "y": float(y)
         })
+
     edges = []
+    max_w = max([d_edge.get("weight", 1) for _, _, d_edge in G.edges(data=True)] or [1]) or 1
     for u, v, d_edge in G.edges(data=True):
         edges.append({
             "source": u.lower().replace(" ", "_"),
             "target": v.lower().replace(" ", "_"),
-            "weight": float(d_edge.get("weight", 1.0))
+            "weight": round(0.5 + (d_edge.get("weight", 1) / max_w) * 2.5, 1)
         })
+
     return {"nodes": nodes, "edges": edges, "central_hub": central_hub}
 
 async def analyze_trending_gap(
@@ -446,6 +510,7 @@ async def analyze_trending_gap(
     if docs is None:
         coll = db[settings.PROCESSED_COLLECTION_NAME]
         docs = await coll.find(filter_query).to_list(length=3000)
+
     total_alumni = max(len(docs), 1)
     alumni_terkini = [d for d in docs if (d.get('latest_work_year') or 0) >= 2026]
     alumni_lama = [d for d in docs if 1980 <= (d.get('latest_work_year') or 0) <= 2022]
@@ -453,9 +518,11 @@ async def analyze_trending_gap(
         alumni_terkini = [d for d in docs if (d.get('latest_work_year') or 0) >= 2024]
     if len(alumni_lama) == 0:
         alumni_lama = [d for d in docs if (d.get('latest_work_year') or 0) <= 2023]
-    skills_terkini = Counter([s['name'] for d in alumni_terkini for s in d.get('skills', []) if isinstance(s, dict)])
-    skills_lama = Counter([s['name'] for d in alumni_lama for s in d.get('skills', []) if isinstance(s, dict)])
-    skills_total = Counter([s['name'] for d in docs for s in d.get('skills', []) if isinstance(s, dict)])
+
+    skills_terkini = Counter([s['name'] for d in alumni_terkini for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')])
+    skills_lama = Counter([s['name'] for d in alumni_lama for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')])
+    skills_total = Counter([s['name'] for d in docs for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')])
+
     growth_scores = {}
     for s_name in skills_total.keys():
         f_new = skills_terkini.get(s_name, 0)
@@ -466,14 +533,16 @@ async def analyze_trending_gap(
             growth_scores[s_name] = round(((f_new - f_old) / f_old) * 100, 1)
         else:
             growth_scores[s_name] = 0.0
+
     top_trending = sorted(skills_total.keys(), key=lambda x: (growth_scores.get(x, 0), skills_total.get(x, 0)), reverse=True)[:5]
     if not top_trending:
         top_trending = ["Python Programming", "System Architecture & Microservices", "Problem Solving & Critical Thinking", "Cloud Infrastructure (AWS/GCP)", "Cross-functional Stakeholder Management"]
+
     items = []
     for idx, s_name in enumerate(top_trending):
-        cnt = skills_total.get(s_name, 100)
+        cnt = skills_total.get(s_name, 0)
         alumni_pct = round((cnt / total_alumni) * 100, 1)
-        trend_pct = growth_scores.get(s_name, 100.0)
+        trend_pct = growth_scores.get(s_name, 0.0 if not skills_total else 50.0)
         demand_factor = 1.2 if trend_pct > 50 else 1.1
         mkt = round(min(92.0, max(alumni_pct + 10.0, alumni_pct * demand_factor)), 1)
         gap = round(alumni_pct - mkt, 1)
@@ -485,6 +554,7 @@ async def analyze_trending_gap(
             status = "Moderate Demand Gap"
         else:
             status = "Safe & Balanced Supply"
+
         s_low = s_name.lower()
         if is_soft_skill(s_name):
             s_type = "Soft Skill"
@@ -495,6 +565,7 @@ async def analyze_trending_gap(
         else:
             s_type = "Hard Skill"
             roles = ["Software Engineer", "Data Scientist"]
+
         items.append({
             "no": f"{idx+1:02d}",
             "skill_name": s_name,
@@ -507,17 +578,17 @@ async def analyze_trending_gap(
             "gap_status": status,
             "target_roles": roles
         })
+
     top_hub = top_trending[0] if top_trending else "Python"
     insights = {
         "hub": f"{top_hub} serves as the primary connectivity hub (centrality 0.88), bridging Data Science, Backend API, and DevOps.",
         "dominance": "Technical & Engineering represents 61.4% of total alumni skills, driven predominantly by Backend development.",
         "gap": "System Architecture shows the largest deficit (-21.5%), with 62% hiring requirements vs 40.8% alumni ownership.",
-        "coverage": f"Analysis extracted from {total_alumni} verified alumni profiles matched with active market benchmarks.",
+        "coverage": f"Analysis extracted from {len(docs)} verified alumni profiles matched with active market benchmarks.",
         "rank_combo": "Python + SQL + Problem Solving is held by 71.4% of alumni who advanced to Senior roles within 3 years.",
         "rank_accel": "Cloud Infrastructure and API Design recorded +100% velocity in recent alumni profiles over the last 30 days."
     }
     return {"items": items, "total_job_postings_analyzed": 1200, "summary_insights": insights}
-
 
 async def calculate_skills_comparison(
     db: AsyncIOMotorDatabase,
@@ -535,10 +606,19 @@ async def calculate_skills_comparison(
     }
     all_cohort_docs = await coll.find(base_filter_query, proj).to_list(length=5000)
     total_cohort = max(len(all_cohort_docs), 1)
-    cohort_skill_counts = Counter([s['name'] for d in all_cohort_docs for s in d.get('skills', []) if isinstance(s, dict)])
+    cohort_skill_counts = Counter([s['name'] for d in all_cohort_docs for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')])
     cohort_benchmarks = {k: (v / total_cohort) * 100 for k, v in cohort_skill_counts.items()}
+    
     for u_name in target_unis:
-        docs = [d for d in all_cohort_docs if u_name in d.get('universities', [])]
+        docs = []
+        for d in all_cohort_docs:
+            u_val = d.get('universities') or []
+            if isinstance(u_val, str):
+                if u_name == u_val or u_name in u_val:
+                    docs.append(d)
+            elif isinstance(u_val, list):
+                if u_name in u_val:
+                    docs.append(d)
         n_matched = len(docs)
         
         if n_matched == 0:
@@ -549,8 +629,7 @@ async def calculate_skills_comparison(
             soft_raw = []
             sigs = []
         else:
-            # Agregasi data riil dari MongoDB
-            all_u_skills = [s['name'] for d in docs for s in d.get('skills', []) if isinstance(s, dict)]
+            all_u_skills = [s['name'] for d in docs for s in d.get('skills', []) if isinstance(s, dict) and s.get('name')]
             n_soft = sum(1 for s in all_u_skills if is_soft_skill(s))
             n_hard = len(all_u_skills) - n_soft
             tot = max(n_hard + n_soft, 1)
@@ -562,14 +641,13 @@ async def calculate_skills_comparison(
             hard_raw = []
             for k, v in hard_skills_ranked:
                 p = round((v / n_matched) * 100, 1)
-                b_badge, b_type = ("Safe", "safe") if p >= 65 else (("Critical Deficit", "deficit") if p < 45 and "Architect" in k else (("Emerging Gap", "gap") if p < 50 else ("High Demand", "demand")))
+                b_badge, b_type = ("Safe", "safe") if p >= 65 else (("Critical Deficit", "deficit") if p < 45 and "Architect" in str(k) else (("Emerging Gap", "gap") if p < 50 else ("High Demand", "demand")))
                 hard_raw.append((k, v, p, b_badge, b_type))
             soft_raw = [(k, v, round((v / n_matched) * 100, 1)) for k, v in soft_skills_ranked]
             align_pct = round(min(85.0, max(60.0, pct_h * 0.8 + 15.0)), 1)
             align_lbl = "Leader" if align_pct >= 76 else ("High" if align_pct >= 72 else "Moderate")
             top_hard_name = hard_raw[0][0].split()[0] if hard_raw else "Python"
             vel_str = f"{top_hard_name} (+28%)"
-            # Signature skills calculation
             sig_candidates = []
             for k, v in freq.items():
                 p = (v / n_matched) * 100
@@ -577,7 +655,8 @@ async def calculate_skills_comparison(
                 if diff > 5.0:
                     sig_candidates.append((k, diff))
             sig_candidates.sort(key=lambda x: x[1], reverse=True)
-            sigs = [(s[0], f"+{s[1]:.0f}% vs benchmark") for s in sig_candidates[:2]] or [("Specialized Core Focus", "+12% vs benchmark")]
+            sigs = [(s[0], f"+{s[1]:.0f}% vs benchmark", round(s[1], 1)) for s in sig_candidates[:2]] or [("Specialized Core Focus", "+12% vs benchmark", 12.0)]
+        
         comparison_cards.append({
             "university_name": u_name,
             "micro_summary": {
@@ -596,14 +675,14 @@ async def calculate_skills_comparison(
                 for idx, item in enumerate(soft_raw)
             ],
             "signature_skills": [
-                {"skill_name": item[0], "diff_pct": item[1]} for item in sigs
+                {"skill_name": item[0], "diff_pct": item[1], "delta_vs_cohort": item[2] if len(item) > 2 else 0.0} for item in sigs
             ]
         })
 
     first_uni = comparison_cards[0]['university_name'] if comparison_cards else "Selected Cohort"
     last_uni = comparison_cards[-1]['university_name'] if comparison_cards else "Selected Cohort"
     takeaways = [
-         {
+        {
             "title": "Strongest Technical Pipeline",
             "description": f"{last_uni} demonstrates solid leadership in core infrastructure, systems architecture, and containerization.",
             "card_type": "default"
@@ -629,3 +708,10 @@ async def calculate_skills_comparison(
         "comparison_cards": comparison_cards,
         "executive_takeaways": takeaways
     }
+
+# ==============================================================================
+# Alias Kompatibilitas Nama Fungsi (Mencegah ImportError)
+# ==============================================================================
+calculate_hard_soft_skills = analyze_hard_vs_soft_skills
+generate_skill_network_graph = analyze_skill_network
+calculate_trending_gap_analysis = analyze_trending_gap

@@ -4,43 +4,110 @@ import streamlit as st
 def render_skill_network_graph(network_data):
     """Render Ecosystem View Sisi Kanan (Co-occurrence Network Graph) - English UI."""
     st.markdown('''
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
+    <style>
+    /* Efek Text-Halo putih tipis agar garis jaringan tidak memotong keterbacaan huruf */
+    .js-plotly-plot .textpoint text {
+        paint-order: stroke fill !important;
+        stroke: #ffffff !important;
+        stroke-width: 1.2px !important;
+        stroke-linejoin: round !important;
+        stroke-linecap: round !important;
+        fill: #1E293B !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        font-weight: 600 !important;
+    }
+    </style>
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-            <div style="font-size: 13px; font-weight: 700; color: #0f172a;">Skill Co-occurrence Network Graph</div>
+            <div style="font-size: 13px; font-weight: 700; color: #1E293B;">Skill Co-occurrence Network Graph</div>
             <span style="background: #e0f2fe; color: #0284c7; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;">Dense Cluster</span>
         </div>
         <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Correlation of skills frequently co-appearing on alumni profiles</div>
     ''', unsafe_allow_html=True)
+
     nodes = network_data.get("nodes", [])
     edges = network_data.get("edges", [])
     edge_x, edge_y = [], []
     node_map = {n["id"]: n for n in nodes}
+
     for e in edges:
         s, t = node_map.get(e["source"]), node_map.get(e["target"])
         if s and t:
             edge_x.extend([s.get("x", 0), t.get("x", 0), None])
             edge_y.extend([s.get("y", 0), t.get("y", 0), None])
+
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=edge_x, y=edge_y, mode='lines', line=dict(width=1.6, color='#cbd5e1'), hoverinfo='none'))
+    # 1. Garis koneksi jaringan di latar belakang
+    fig.add_trace(go.Scatter(
+        x=edge_x, y=edge_y,
+        mode='lines',
+        line=dict(width=1.5, color='#cbd5e1'),
+        hoverinfo='none'
+    ))
+
+    # 2. Penentuan data node & posisi teks adaptif sesuai gambar referensi
     node_x = [n.get("x", 0) for n in nodes]
     node_y = [n.get("y", 0) for n in nodes]
     node_size = [n.get("size", 20) for n in nodes]
     node_color = [n.get("color", "#0284c7") for n in nodes]
     node_text = [n.get("label", "") for n in nodes]
-    hover_text = [f"<b>{n['label']}</b><br>Dimension: {n['dimension']}<br>Endorsements: {n['endorsements']}<br>Alumni: {n['frequency']} ({n['pct']}%)" for n in nodes]
+    hover_text = [
+        f"<b>{n['label']}</b><br>Dimension: {n['dimension']}<br>Endorsements: {n['endorsements']}<br>Alumni: {n['frequency']} ({n['pct']}%)"
+        for n in nodes
+    ]
+
+    # Smart label positioning: node tepi ditarik ke luar, node tengah tetap di tengah
+    text_positions = []
+    for n in nodes:
+        x, y = n.get("x", 0), n.get("y", 0)
+        sz = n.get("size", 20)
+        if sz >= 28 or (abs(x) < 0.18 and abs(y) < 0.18):
+            text_positions.append("middle center")
+        elif y > 0.25:
+            text_positions.append("top center")
+        elif y < -0.25:
+            text_positions.append("bottom center")
+        elif x < -0.22:
+            text_positions.append("middle left")
+        elif x > 0.22:
+            text_positions.append("middle right")
+        else:
+            text_positions.append("middle center")
+
+    # 3. Trace Node & Teks dengan efek halo putih dan warna Dark Slate (#1E293B)
     fig.add_trace(go.Scatter(
-        x=node_x, y=node_y, mode='markers+text',
-        marker=dict(size=node_size, color=node_color, line=dict(width=1.8, color='#ffffff')),
-        text=node_text, textposition='middle center',
-        textfont=dict(size=8.5, color='#0f172a', family='Arial Black'),
-        hoverinfo='text', hovertext=hover_text
+        x=node_x, y=node_y,
+        mode='markers+text',
+        marker=dict(
+            size=node_size,
+            color=node_color,
+            line=dict(width=2.0, color='#ffffff')
+        ),
+        text=node_text,
+        textposition=text_positions,
+        textfont=dict(
+            size=9.5,
+            color='#1E293B',
+            family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            weight='bold',
+            shadow='0 0 2px #ffffff, 0 0 2px #ffffff'
+        ),
+        hoverinfo='text',
+        hovertext=hover_text
     ))
+
     fig.update_layout(
-        height=260, showlegend=False, margin=dict(l=5, r=5, t=5, b=5),
-        plot_bgcolor='#f8fafc', paper_bgcolor='#ffffff',
-        xaxis=dict(visible=False), yaxis=dict(visible=False)
+        height=270,
+        showlegend=False,
+        margin=dict(l=15, r=15, t=10, b=10),
+        plot_bgcolor='#ffffff',
+        paper_bgcolor='#ffffff',
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False)
     )
+
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+
     st.markdown('''
         <div style="font-size: 10px; color: #64748b; margin-top: 4px; text-align: center;">
             Node size = endorsement volume &middot; Line = co-occurrence strength
@@ -71,7 +138,6 @@ def render_trending_gap_table(gap_data):
         </tr>'''
     rows_html = ""
     for it in items:
-        # Badge Skill Type: diselaraskan dengan warna badge Top 6 Rank (Hard Skills: #eff6ff / #1d4ed8, Soft Skills: #fdf2f8 / #be185d)
         badge_type = (
             "background: #eff6ff; color: #1d4ed8;" if "Hard" in it["skill_type"]
             else ("background: #fdf2f8; color: #be185d;" if "Soft" in it["skill_type"]
@@ -121,15 +187,18 @@ def render_insights_cards(gap_data, mode="ranking"):
 
 def render_skills_comparison(
     api_client,
+    selected_university=None,
     study_program=None,
     target_role=None,
     industry=None,
     graduation_year=None,
-    starting_role=None
+    starting_role=None,
+    career_level=None,
+    **kwargs
 ):
     """
     Render Tab 2: Skills Comparison View (Side-by-Side Dinamis Multi-Universitas).
-    Fitur Lengkap: Sub-Header 6 Checkbox Universitas, Metrik Mikro,
+    Fitur Lengkap: Sub-Header Checkbox Universitas Dinamis, Metrik Mikro,
     Top Hard Skills dengan Integrasi Benchmark Pasar, Top Soft Skills,
     Signature Skills (+ vs Cohort), dan 4 Kartu Executive Takeaways.
     """
@@ -145,8 +214,14 @@ def render_skills_comparison(
         "Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung",
         "Institut Teknologi Sepuluh Nopember", "Universitas Airlangga", "BINUS University"
     ]
-    selected_unis = []
     defaults = ["Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung"]
+    
+    # Jika ada universitas spesifik yang dipilih pada filter atas, prioritaskan masuk ke default
+    if selected_university and selected_university in all_unis:
+        if selected_university not in defaults:
+            defaults = [selected_university] + [u for u in defaults if u != selected_university][:2]
+
+    selected_unis = []
     row1_cols = st.columns(3)
     row2_cols = st.columns(3)
     grid_cols = row1_cols + row2_cols
@@ -161,14 +236,19 @@ def render_skills_comparison(
         if not selected_unis:
             selected_unis = defaults[:2]
 
-    comparison_data, _ = api_client.fetch_skills_comparison(
+    comparison_data, is_real = api_client.fetch_skills_comparison(
         selected_unis,
         study_program=study_program,
         target_role=target_role,
         industry=industry,
         graduation_year=graduation_year,
-        starting_role=starting_role
+        starting_role=starting_role,
+        career_level=career_level
     )
+
+    if not is_real:
+        st.caption(":material/warning: Showing offline preview data (Backend connection unavailable or returning fallback)")
+
     cards_data = comparison_data.get("comparison_cards", [])
     active_cards = [c for c in cards_data if c["university_name"] in selected_unis]
 
@@ -265,9 +345,9 @@ def render_skills_comparison(
     t_cols = st.columns(4)
     takeaways = comparison_data.get("executive_takeaways", [])
     for col, t in zip(t_cols, takeaways):
-        card_bg = "#fff5f5; border-color: #fecaca;" if t["card_type"] == "critical" else ("#f0fdf4; border-color: #bbf7d0;" if t["card_type"] == "success" else "#ffffff; border-color: #e2e8f0;")
-        title_color = "#991b1b" if t["card_type"] == "critical" else ("#166534" if t["card_type"] == "success" else "#0f172a")
-        desc_color = "#7f1d1d" if t["card_type"] == "critical" else ("#14532d" if t["card_type"] == "success" else "#64748b")
+        card_bg = "#fff5f5; border-color: #fecaca;" if t.get("card_type") == "critical" else ("#f0fdf4; border-color: #bbf7d0;" if t.get("card_type") == "success" else "#ffffff; border-color: #e2e8f0;")
+        title_color = "#991b1b" if t.get("card_type") == "critical" else ("#166534" if t.get("card_type") == "success" else "#0f172a")
+        desc_color = "#7f1d1d" if t.get("card_type") == "critical" else ("#14532d" if t.get("card_type") == "success" else "#64748b")
         with col:
             st.markdown(f'''
             <div style="background: {card_bg} border: 1px solid; border-radius: 8px; padding: 12px 14px; height: 100%;">

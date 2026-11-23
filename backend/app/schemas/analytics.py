@@ -18,6 +18,7 @@ class HardSoftBarItem(BaseModel):
     endorsements: int
     demand_badge: str     
     bar_color: str         
+
 class HardSoftSkillsResponse(BaseModel):
     hard_skills: List[HardSoftBarItem]
     soft_skills: List[HardSoftBarItem]
@@ -29,9 +30,11 @@ class CategoryDistributionItem(BaseModel):
     percentage: float
     total: int
     subcategories: Dict[str, int]
+
 class SkillsDistributionResponse(BaseModel):
     categories: List[CategoryDistributionItem]
     total_skills_count: int = 2850
+    unique_skills_count: Optional[int] = None  # Field dinamis unique skills
 
 class NetworkNode(BaseModel):
     id: str
@@ -45,10 +48,12 @@ class NetworkNode(BaseModel):
     color: str
     x: float
     y: float
+
 class NetworkEdge(BaseModel):
     source: str
     target: str
     weight: float
+
 class SkillNetworkResponse(BaseModel):
     nodes: List[NetworkNode]
     edges: List[NetworkEdge]
@@ -65,6 +70,7 @@ class TrendingGapItem(BaseModel):
     gap_score: float       
     gap_status: str        
     target_roles: List[str]
+
 class TrendingGapResponse(BaseModel):
     items: List[TrendingGapItem]
     total_job_postings_analyzed: int = 1200
@@ -79,6 +85,7 @@ class FilterOptionsResponse(BaseModel):
     starting_roles: List[str] = []
     career_levels: List[str]
     locations: List[str]
+
 class FullDashboardResponse(BaseModel):
     kpi: KPIMetricsResponse
     hard_soft_skills: HardSoftSkillsResponse
@@ -92,27 +99,33 @@ class MicroSummaryMetrics(BaseModel):
     market_alignment_pct: float    
     market_alignment_label: str    
     highest_velocity_skill: str    
+
 class ComparisonSkillItem(BaseModel):
     rank: int
     skill_name: str
     count: int
     percentage: float
-    demand_badge: str             
-    badge_type: str               
-class SignatureSkill(BaseModel):
+    demand_badge: str
+    badge_type: str
+
+class SignatureSkillItem(BaseModel):
     skill_name: str
-    diff_pct: str                 
+    diff_pct: str
+    delta_vs_cohort: Optional[float] = 0.0
+
+class ExecutiveTakeawayItem(BaseModel):
+    title: str
+    description: str
+    card_type: str = "default"
+
 class UniversityComparisonCard(BaseModel):
     university_name: str
     micro_summary: MicroSummaryMetrics
     top_hard_skills: List[ComparisonSkillItem]
     top_soft_skills: List[ComparisonSkillItem]
-    signature_skills: List[SignatureSkill]
-class ExecutiveTakeaway(BaseModel):
-    title: str
-    description: str
-    card_type: str                 
+    signature_skills: List[SignatureSkillItem]
+
 class SkillsComparisonResponse(BaseModel):
     selected_universities: List[str]
     comparison_cards: List[UniversityComparisonCard]
-    executive_takeaways: List[ExecutiveTakeaway]
+    executive_takeaways: Optional[List[ExecutiveTakeawayItem]] = []

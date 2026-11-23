@@ -18,6 +18,7 @@ from backend.app.crud.analytics import (
 )
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
+
 @router.get("/filters", response_model=FilterOptionsResponse)
 async def get_filters_endpoint(
     db: AsyncIOMotorDatabase = Depends(get_database),
@@ -35,11 +36,12 @@ async def get_full_dashboard(
     industry: Optional[str] = Query(None),
     graduation_year: Optional[str] = Query(None),
     starting_role: Optional[str] = Query(None),
+    career_level: Optional[str] = Query(None),
     db: AsyncIOMotorDatabase = Depends(get_database),
     authorized: bool = Depends(verify_api_key)
 ):
     """Endpoint utama pengambil seluruh data dashboard secara terpadu."""
-    query = build_filter_query(university, study_program, target_role, industry, graduation_year, starting_role)
+    query = build_filter_query(university, study_program, target_role, industry, graduation_year, starting_role, career_level)
     coll = db[settings.PROCESSED_COLLECTION_NAME]
     proj = {
         "skills": 1,
@@ -74,11 +76,12 @@ async def get_skills_comparison_endpoint(
     industry: Optional[str] = Query(None),
     graduation_year: Optional[str] = Query(None),
     starting_role: Optional[str] = Query(None),
+    career_level: Optional[str] = Query(None),
     db: AsyncIOMotorDatabase = Depends(get_database),
     authorized: bool = Depends(verify_api_key)
 ):
     """Endpoint komparasi multi-universitas berdampingan secara dinamis dari MongoDB."""
     target_unis = [u.strip() for u in universities.split(",") if u.strip()]
-    base_query = build_filter_query(None, study_program, target_role, industry, graduation_year, starting_role)
+    base_query = build_filter_query(None, study_program, target_role, industry, graduation_year, starting_role, career_level)
     comparison_data = await calculate_skills_comparison(db, target_unis, base_query)
     return SkillsComparisonResponse(**comparison_data)

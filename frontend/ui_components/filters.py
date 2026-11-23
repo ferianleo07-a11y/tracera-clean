@@ -19,8 +19,10 @@ def render_cohort_filters(filter_options):
         st.session_state["sel_grad"] = st.query_params.get("grad", "All")
     if "sel_start" not in st.session_state:
         st.session_state["sel_start"] = st.query_params.get("start", "All")
+    if "filter_lvl" not in st.session_state:
+        st.session_state["filter_lvl"] = st.query_params.get("lvl", "All")
 
-    # Cohort filters button / pill dengan icon slider SVG persis Gambar 2
+    # Cohort filters button / pill dengan icon slider
     st.markdown(
         """
         <div style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: #1e293b; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03); margin-top: 4px; margin-bottom: 8px;">
@@ -55,7 +57,7 @@ def render_cohort_filters(filter_options):
     with c3:
         st.selectbox("Target role", roles, index=idx_role, key="sel_role")
 
-    # Expander "More filters" (tanda '+' dihilangkan sesuai Gambar 2)
+    # Expander "More filters"
     with st.expander("More filters", expanded=True):
         m1, m2, m3, m4 = st.columns(4)
         with m1:
@@ -71,22 +73,30 @@ def render_cohort_filters(filter_options):
             idx_ind = inds.index(st.session_state["sel_ind"]) if st.session_state["sel_ind"] in inds else 0
             st.selectbox("Industry", inds, index=idx_ind, key="sel_ind")
         with m4:
-            st.selectbox("Career level", ["All", "Entry-Level", "Mid-Senior", "Executive"], key="filter_lvl")
+            lvls = ["All", "Entry-Level", "Mid-Senior", "Executive"]
+            idx_lvl = lvls.index(st.session_state["filter_lvl"]) if st.session_state["filter_lvl"] in lvls else 0
+            st.selectbox("Career level", lvls, index=idx_lvl, key="filter_lvl")
     st.markdown("<hr style='border: none; border-top: 1px solid #f1f5f9; margin: 10px 0 14px 0;'/>", unsafe_allow_html=True)
 
 def render_kpi_metric_cards(kpi_data):
     """Render 4 Borderless KPI Metric Cards (English)."""
     k1, k2, k3, k4 = st.columns(4)
+    matched = kpi_data.get('matched_alumni', 0)
+    unique_skills = kpi_data.get('total_unique_skills', 0)
+    ratio_str = kpi_data.get('skill_type_ratio', '0% : 0%')
+    trending_count = kpi_data.get('trending_skills_count', 0)
+    mom_str = kpi_data.get('mom_growth_str', '+0% MoM')
+
     metrics = [
-        ("Matched alumni", f"{kpi_data.get('matched_alumni', 240):,}", "alumni"),
-        ("Total unique skills", f"{kpi_data.get('total_unique_skills', 2850):,}", "skills"),
-        ("Skill type ratio (H : S)", f"{kpi_data.get('skill_type_ratio', '72% : 28%')}", "Hard vs Soft"),
-        ("Trending skills", f"{kpi_data.get('trending_skills_count', 55)}", kpi_data.get('mom_growth_str', "+18% MoM"))
+        ("Matched alumni", f"{matched:,}", "alumni"),
+        ("Total unique skills", f"{unique_skills:,}", "skills"),
+        ("Skill type ratio (H : S)", ratio_str, "Hard vs Soft"),
+        ("Trending skills", f"{trending_count}", mom_str)
     ]
     
     for col, (label, val, sub) in zip([k1, k2, k3, k4], metrics):
         with col:
-            mom_color = "#16a34a" if "+" in sub else "#64748b"
+            mom_color = "#16a34a" if "+" in sub and sub != "+0% MoM" else "#64748b"
             st.markdown(
                 f"""
                 <div style="padding: 2px 8px;">
