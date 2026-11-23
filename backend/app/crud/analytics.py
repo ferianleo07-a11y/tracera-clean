@@ -7,7 +7,7 @@ import pandas as pd
 from typing import Dict, Any, List, Optional, Tuple
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from backend.app.core.config import settings
-from backend.crud.skill_cleaner import is_soft_skill, normalize_skill
+from backend.app.utils.skill_cleaner import is_soft_skill, normalize_skill
 
 INDUSTRY_MAPPING = {
     "consulting": ["consulting", "advisory", "management consulting", "business consulting"],

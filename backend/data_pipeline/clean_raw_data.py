@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pymongo import MongoClient, UpdateOne
 from dotenv import load_dotenv
 
-from backend.crud.skill_cleaner import (
+from backend.utils.skill_cleaner import (
     normalize_skill, clean_job_title, normalize_target_role,
     clean_universities, clean_indonesian_university, normalize_industry,
     normalize_study_program
