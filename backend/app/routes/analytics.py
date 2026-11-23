@@ -33,17 +33,21 @@ async def get_full_dashboard(
     study_program: Optional[str] = Query(None),
     target_role: Optional[str] = Query(None),
     industry: Optional[str] = Query(None),
+    graduation_year: Optional[str] = Query(None),
+    starting_role: Optional[str] = Query(None),
     db: AsyncIOMotorDatabase = Depends(get_database),
     authorized: bool = Depends(verify_api_key)
 ):
     """Endpoint utama pengambil seluruh data dashboard secara terpadu."""
-    query = build_filter_query(university, study_program, target_role, industry)
+    query = build_filter_query(university, study_program, target_role, industry, graduation_year, starting_role)
     coll = db[settings.PROCESSED_COLLECTION_NAME]
     proj = {
         "skills": 1,
         "universities": 1,
         "study_programs": 1,
         "target_role": 1,
+        "starting_role": 1,
+        "graduation_year": 1,
         "industry": 1,
         "latest_work_year": 1
     }
@@ -68,11 +72,13 @@ async def get_skills_comparison_endpoint(
     study_program: Optional[str] = Query(None),
     target_role: Optional[str] = Query(None),
     industry: Optional[str] = Query(None),
+    graduation_year: Optional[str] = Query(None),
+    starting_role: Optional[str] = Query(None),
     db: AsyncIOMotorDatabase = Depends(get_database),
     authorized: bool = Depends(verify_api_key)
 ):
     """Endpoint komparasi multi-universitas berdampingan secara dinamis dari MongoDB."""
     target_unis = [u.strip() for u in universities.split(",") if u.strip()]
-    base_query = build_filter_query(None, study_program, target_role, industry)
+    base_query = build_filter_query(None, study_program, target_role, industry, graduation_year, starting_role)
     comparison_data = await calculate_skills_comparison(db, target_unis, base_query)
     return SkillsComparisonResponse(**comparison_data)

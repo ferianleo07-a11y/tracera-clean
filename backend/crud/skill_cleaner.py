@@ -401,9 +401,7 @@ def map_to_tracera_17(raw_role: str) -> str:
     # 1. DATA FAMILY
     if any(k in r for k in ['data lead', 'head of data', 'data governance', 'chief scientist', 'director of data']):
         return "Data Lead"
-    if any(k in r for k in ['senior data scientist', 'lead data scientist', 'associate director, machine learning']):
-        return "Senior Data Scientist"
-    if any(k in r for k in ['data scientist', 'machine learning', 'artificial intelligence', 'ai ']):
+    if any(k in r for k in ['senior data scientist', 'lead data scientist', 'associate director, machine learning', 'data scientist', 'machine learning', 'artificial intelligence', 'ai ']):
         return "Data Scientist"
     if any(k in r for k in ['data analyst', 'analis data', 'bi ', 'business intelligence', 'analytics', 'statistic']):
         return "Data Analyst"
@@ -431,12 +429,9 @@ def map_to_tracera_17(raw_role: str) -> str:
         return "Engineering Manager"
     if any(k in r for k in ['technical lead', 'development engineer lead', 'lead developer', 'staff software engineer', 'lead engineer']):
         return "Technical Lead"
-    if any(k in r for k in ['senior software', 'senior developer', 'senior backend', 'senior ios', 'software architect', 'senior consultant iii']):
-        return "Senior Software Engineer"
-    if any(k in r for k in ['junior software', 'intern developer', 'student intern', 'junior dev', 'student']):
-        if any(k in r for k in ['dev', 'software', 'tech', 'engineer', 'code', 'program']):
-            return "Junior Software Engineer"
     if any(k in r for k in [
+        'senior software', 'senior developer', 'senior backend', 'senior ios', 'software architect', 'senior consultant iii',
+        'junior software', 'intern developer', 'student intern', 'junior dev',
         'software', 'developer', 'programmer', 'architect', 'devops', 'backend', 
         'frontend', 'cloud', 'datacenter', 'network engineer', 'full stack', 'web'
     ]):
@@ -468,6 +463,118 @@ def map_to_tracera_17(raw_role: str) -> str:
         return "Operations Manager"
 
     return "Software Engineer"
+
+
+def normalize_industry(raw_ind: str, target_role: str = '', starting_role: str = '') -> str:
+    """Menormalisasi industri profil ke 5 Industri Standar Tracera, disesuaikan dengan Starting Role & Target Role."""
+    s = (raw_ind or '').lower().strip()
+    roles_str = f"{target_role or ''} {starting_role or ''}".lower()
+
+    if any(k in s for k in ['telecommunication', 'telecom', 'network', 'broadcast media', 'advertising']):
+        return 'Telecommunications'
+    if any(k in s for k in ['financial', 'banking', 'accounting', 'investment', 'insurance', 'venture capital', 'private equity']):
+        return 'Financial Services'
+    if any(k in s for k in [
+        'consulting', 'advisory', 'research', 'training', 'coaching', 'strategic management',
+        'law', 'human resources', 'outsourcing', 'public relations', 'higher education',
+        'education', 'government', 'public policy', 'international affairs', 'legislative',
+        'non-profit', 'civic', 'environmental', 'events', 'writing'
+    ]):
+        return 'Consulting'
+    if any(k in s for k in [
+        'software', 'it services', 'technology', 'internet', 'computer',
+        'information technology', 'semiconductor', 'automation', 'graphic design'
+    ]):
+        return 'Technology'
+    if any(k in s for k in [
+        'consumer goods', 'retail', 'food', 'beverage', 'manufacturing', 'farming', 'apparel',
+        'wholesale', 'hospitality', 'restaurants', 'wellness', 'entertainment', 'pharmaceutical',
+        'chemical', 'machinery', 'mining', 'oil and gas', 'utilities', 'construction',
+        'civil engineering', 'real estate', 'transportation', 'maritime', 'aviation', 'defense',
+        'fisheries', 'hospitals', 'health care', 'biotechnology', 'architecture', 'facilities'
+    ]):
+        return 'Consumer Goods'
+
+    # Fallback selaras dengan Target Role & Starting Role
+    if 'business analyst' in roles_str:
+        return 'Financial Services'
+    if 'consultant' in roles_str:
+        return 'Consulting'
+    if 'marketing' in roles_str:
+        return 'Telecommunications'
+    if 'operations manager' in roles_str:
+        return 'Consumer Goods'
+    return 'Technology'
+
+
+def normalize_study_program(fos_list, target_role: str = '', starting_role: str = '') -> str:
+    """Mengelompokkan program studi ke dalam 5 Cohort Filters Standar Tracera (English)."""
+    clean_fos = [
+        str(f).lower().strip()
+        for f in (fos_list or [])
+        if f and str(f).lower().strip() not in ['all study programs', 'all', '-']
+    ]
+    joined = ' | '.join(clean_fos)
+
+    # 1. Data Science & Quantitative Analytics
+    if any(k in joined for k in [
+        'data analysis', 'data science', 'actuarial', 'aktuaria', 'computational science',
+        'applied geostatistics', 'geostatistics', 'information systems', 'sistem informasi',
+        'information system', 'management information systems', 'statistics', 'statistika'
+    ]) or (any(k in joined for k in ['mathematics', 'matematika']) and 'natural science' not in joined):
+        return 'Data Science & Quantitative Analytics'
+
+    # 2. Computer Science & Software Engineering
+    if any(k in joined for k in [
+        'computer science', 'informatics', 'teknik informatika', 'informatika',
+        'software engineering', 'computer programming', 'information technology',
+        'back end javascript', 'javascript', 'full stack', 'rekayasa perangkat lunak',
+        'ilmu komputer', 'artificial intelligence', 'teknik komputer', 'computer engineering'
+    ]):
+        return 'Computer Science & Software Engineering'
+
+    # 3. Finance, Banking & Accounting
+    if any(k in joined for k in [
+        'accounting', 'akuntansi', 'banking', 'perbankan', 'financial', 'finance',
+        'keuangan', 'sharia accounting', 'tax', 'pajak', 'perpajakan'
+    ]):
+        return 'Finance, Banking & Accounting'
+
+    # 4. Engineering & Industrial Technology
+    if any(k in joined for k in [
+        'chemical', 'civil', 'mechanical', 'geological', 'geophysical', 'geologi', 'geofisika',
+        'mining', 'mineral', 'tambang', 'pertambangan', 'petroleum', 'perminyakan',
+        'electrical', 'elektro', 'industrial engineering', 'teknik industri', 'architecture', 'arsitektur',
+        'teknik kimia', 'teknik mesin', 'mesin', 'teknik sipil', 'sipil', 'metalurgi', 'metallurgy',
+        'mekatronik', 'robotik', 'energi', 'energy', 'lingkungan', 'environmental', 'structural',
+        'urban', 'hutan', 'forestry', 'pulp', 'paper', 'engineering', 'teknik', 'fisika', 'physics',
+        'kimia', 'chemistry', 'biologi', 'biology', 'geografi', 'geography', 'pertanian', 'agriculture',
+        'soil', 'water'
+    ]):
+        return 'Engineering & Industrial Technology'
+
+    # 5. Business, Management & Economics
+    if any(k in joined for k in [
+        'business', 'bisnis', 'management', 'manajemen', 'marketing', 'pemasaran',
+        'economics', 'ekonomi', 'entrepreneurship', 'mba', 'administrasi', 'administration',
+        'public relations', 'communication', 'komunikasi', 'law', 'hukum', 'psychology', 'psikologi',
+        'international relations', 'sociology', 'sosiologi', 'political', 'politik', 'public health',
+        'kesehatan', 'nursing', 'education', 'pendidikan', 'humanities', 'philosoph',
+        'literature', 'sastra', 'english', 'governance', 'government', 'anthropology', 'crimino', 'tourist', 'travel', 'media'
+    ]):
+        return 'Business, Management & Economics'
+
+    # Fallback selaras dengan Target Role & Starting Role apabila fieldOfStudy kosong / SMA
+    roles = f"{target_role or ''} {starting_role or ''}".lower()
+    if 'data' in roles:
+        return 'Data Science & Quantitative Analytics'
+    if 'business analyst' in roles:
+        return 'Finance, Banking & Accounting'
+    if 'operations manager' in roles:
+        return 'Engineering & Industrial Technology'
+    if any(k in roles for k in ['marketing', 'consultant', 'product']):
+        return 'Business, Management & Economics'
+    return 'Computer Science & Software Engineering'
 
 # ==============================================================================
 # 4. FILTER KETAT UNIVERSITAS (KHUSUS PERGURUAN TINGGI INDONESIA)

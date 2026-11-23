@@ -6,7 +6,7 @@
 import streamlit as st
 
 def render_cohort_filters(filter_options):
-    """Render Cohort Filters Bar: Dropdowns and Reset Filters (English)."""
+    """Render Cohort Filters Bar: Dropdowns (English)."""
     if "sel_uni" not in st.session_state:
         st.session_state["sel_uni"] = st.query_params.get("uni", "All")
     if "sel_prog" not in st.session_state:
@@ -15,24 +15,19 @@ def render_cohort_filters(filter_options):
         st.session_state["sel_role"] = st.query_params.get("role", "All")
     if "sel_ind" not in st.session_state:
         st.session_state["sel_ind"] = st.query_params.get("ind", "All")
-    c_filt_head, c_reset_filt = st.columns([8, 2], vertical_alignment="center")
-    with c_filt_head:
-        st.markdown(
-            """
-            <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px; margin-bottom: 4px;">
-                Cohort filters
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    with c_reset_filt:
-        if st.button("Reset filters", key="btn_reset_filters_only", help="Reset cohort filters to All"):
-            st.session_state["sel_uni"] = "All"
-            st.session_state["sel_prog"] = "All Study Programs"
-            st.session_state["sel_role"] = "All"
-            st.session_state["sel_ind"] = "All"
-            st.query_params.clear()
-            st.rerun()
+    if "sel_grad" not in st.session_state:
+        st.session_state["sel_grad"] = st.query_params.get("grad", "All")
+    if "sel_start" not in st.session_state:
+        st.session_state["sel_start"] = st.query_params.get("start", "All")
+
+    st.markdown(
+        """
+        <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px; margin-bottom: 6px;">
+            Cohort filters
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     c1, c2, c3 = st.columns(3)
     unis = ["All"] + [u for u in filter_options.get("universities", []) if u != "All"]
@@ -48,19 +43,21 @@ def render_cohort_filters(filter_options):
     with c3:
         st.selectbox("Target role", roles, index=idx_role, key="sel_role")
     with st.expander("+ More filters", expanded=True):
-        m1, m2, m3, m4, m5 = st.columns(5)
+        m1, m2, m3, m4 = st.columns(4)
         with m1:
-            st.selectbox("Graduation year", ["All", "2024", "2023", "2022", "2021"], key="filter_grad")
+            grads = ["All"] + [str(g) for g in filter_options.get("graduation_years", []) if str(g) != "All"]
+            idx_grad = grads.index(str(st.session_state["sel_grad"])) if str(st.session_state["sel_grad"]) in grads else 0
+            st.selectbox("Graduation year", grads, index=idx_grad, key="sel_grad")
         with m2:
-            st.selectbox("Starting role", ["All", "Junior Developer", "Intern", "Analyst"], key="filter_start")
+            starts = ["All"] + [s for s in filter_options.get("starting_roles", []) if s != "All"]
+            idx_start = starts.index(st.session_state["sel_start"]) if st.session_state["sel_start"] in starts else 0
+            st.selectbox("Starting role", starts, index=idx_start, key="sel_start")
         with m3:
-            inds = ["All", "Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"]
+            inds = ["All"] + [i for i in filter_options.get("industries", ["Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"]) if i != "All"]
             idx_ind = inds.index(st.session_state["sel_ind"]) if st.session_state["sel_ind"] in inds else 0
             st.selectbox("Industry", inds, index=idx_ind, key="sel_ind")
         with m4:
-            st.selectbox("Career level", ["Mid-Senior", "Entry-Level", "Executive", "All"], key="filter_lvl")
-        with m5:
-            st.selectbox("Location", ["Indonesia", "Singapore", "Remote", "All"], key="filter_loc")
+            st.selectbox("Career level", ["All", "Entry-Level", "Mid-Senior", "Executive"], key="filter_lvl")
     st.markdown("<hr style='border: none; border-top: 1px solid #f1f5f9; margin: 10px 0 14px 0;'/>", unsafe_allow_html=True)
 def render_kpi_metric_cards(kpi_data):
     """Render 4 Borderless KPI Metric Cards (English)."""

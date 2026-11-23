@@ -27,20 +27,35 @@ class APIClient:
             pass
         return {
             "universities": ["Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung", "Institut Teknologi Sepuluh Nopember", "Universitas Airlangga", "BINUS University"],
-            "study_programs": ["All Study Programs", "Computer Science", "Electrical Engineering", "Industrial Engineering", "Management"],
+            "study_programs": [
+                "All Study Programs",
+                "Computer Science & Software Engineering",
+                "Data Science & Quantitative Analytics",
+                "Finance, Banking & Accounting",
+                "Engineering & Industrial Technology",
+                "Business, Management & Economics"
+            ],
             "target_roles": [
-                "Junior Software Engineer", "Software Engineer", "Senior Software Engineer",
-                "Technical Lead", "Engineering Manager", "Data Analyst", "Data Scientist",
-                "Senior Data Scientist", "Data Lead", "Product Owner", "Product Manager",
-                "Head of Product", "Business Analyst", "Consultant", "Operations Manager",
+                "Software Engineer", "Technical Lead", "Engineering Manager",
+                "Data Analyst", "Data Scientist", "Data Lead",
+                "Product Owner", "Product Manager", "Head of Product",
+                "Business Analyst", "Consultant", "Operations Manager",
                 "Marketing Associate", "Marketing Manager"
             ],
             "industries": ["Technology", "Financial Services", "Consulting", "Consumer Goods", "Telecommunications"],
+            "graduation_years": ["2025", "2024", "2023", "2022", "2021", "2020"],
+            "starting_roles": [
+                "Software Engineer", "Technical Lead", "Engineering Manager",
+                "Data Analyst", "Data Scientist", "Data Lead",
+                "Product Owner", "Product Manager", "Head of Product",
+                "Business Analyst", "Consultant", "Operations Manager",
+                "Marketing Associate", "Marketing Manager"
+            ],
             "career_levels": ["All", "Entry-Level", "Mid-Senior", "Executive"],
             "locations": ["All", "Indonesia", "Singapore", "Remote"]
             }
     @st.cache_data(ttl=300, show_spinner="Loading dashboard data...")
-    def fetch_dashboard_data(_self, university=None, study_program=None, target_role=None, industry=None):
+    def fetch_dashboard_data(_self, university=None, study_program=None, target_role=None, industry=None, graduation_year=None, starting_role=None):
         """Mengambil seluruh payload data dashboard dari backend FastAPI."""
         params = {}
         if university and university != "All":
@@ -51,6 +66,10 @@ class APIClient:
             params["target_role"] = target_role
         if industry and industry != "All":
             params["industry"] = industry
+        if graduation_year and str(graduation_year) != "All":
+            params["graduation_year"] = str(graduation_year)
+        if starting_role and starting_role != "All":
+            params["starting_role"] = starting_role
 
         try:
             resp = requests.get(f"{_self.base_url}/analytics/dashboard", params=params, headers=_self.headers, timeout=8)
@@ -61,7 +80,7 @@ class APIClient:
         return _self._generate_fallback_data(), False
 
     @st.cache_data(ttl=300, show_spinner="Loading comparison data...")
-    def fetch_skills_comparison(_self, universities_list, study_program=None, target_role=None, industry=None):
+    def fetch_skills_comparison(_self, universities_list, study_program=None, target_role=None, industry=None, graduation_year=None, starting_role=None):
         """Mengambil data perbandingan multi-universitas dari endpoint backend."""
         unis_param = ",".join(universities_list)
         params = {"universities": unis_param}
@@ -71,6 +90,10 @@ class APIClient:
             params["target_role"] = target_role
         if industry and industry != "All":
             params["industry"] = industry
+        if graduation_year and str(graduation_year) != "All":
+            params["graduation_year"] = str(graduation_year)
+        if starting_role and starting_role != "All":
+            params["starting_role"] = starting_role
             
         try:
             resp = requests.get(f"{_self.base_url}/analytics/skills/comparison", params=params, headers=_self.headers, timeout=8)

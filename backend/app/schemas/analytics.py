@@ -75,6 +75,8 @@ class FilterOptionsResponse(BaseModel):
     study_programs: List[str]
     target_roles: List[str]
     industries: List[str]
+    graduation_years: List[str] = []
+    starting_roles: List[str] = []
     career_levels: List[str]
     locations: List[str]
 class FullDashboardResponse(BaseModel):

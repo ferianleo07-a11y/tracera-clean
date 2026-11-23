@@ -10,7 +10,7 @@ import streamlit as st
 
 def render_header(dashboard_data=None):
     """Render Header Bar: Breadcrumb, Title, Status Badges, and Action Buttons (English)."""
-    col_left, col_right = st.columns([6, 4], vertical_alignment="center")
+    col_left, col_right = st.columns([6.5, 3.5], vertical_alignment="center")
     
     with col_left:
         st.markdown(
@@ -36,14 +36,16 @@ def render_header(dashboard_data=None):
         )
 
     with col_right:
-        c_reset, c_export, c_share = st.columns([1, 1.3, 1.2])
+        c_reset, c_export, c_share = st.columns([1, 1.35, 1.25], gap="small")
         # 1. Reset Button
         with c_reset:
-            if st.button("Reset", key="btn_reset_all", help="Reset all filters and view to default"):
+            if st.button("Reset", key="btn_reset_all", help="Reset all filters and view to default", use_container_width=True):
                 st.session_state["sel_uni"] = "All"
                 st.session_state["sel_prog"] = "All Study Programs"
                 st.session_state["sel_role"] = "All"
                 st.session_state["sel_ind"] = "All"
+                st.session_state["sel_grad"] = "All"
+                st.session_state["sel_start"] = "All"
                 st.query_params.clear()
                 st.rerun()
         # 2. Export CSV Button
@@ -60,19 +62,24 @@ def render_header(dashboard_data=None):
                 file_name="skills_intelligence_metrics.csv",
                 mime="text/csv",
                 key="btn_export_csv",
-                help="Export current analysis table to CSV"
+                help="Export current analysis table to CSV",
+                use_container_width=True
             )
         # 3. Share View Button
         with c_share:
-            if st.button("Share view", key="btn_share_view", help="Copy link to current view and filters"):
+            if st.button("Share view", key="btn_share_view", help="Copy link to current view and filters", use_container_width=True):
                 uni = st.session_state.get("sel_uni", "All")
                 prog = st.session_state.get("sel_prog", "All Study Programs")
                 role = st.session_state.get("sel_role", "All")
                 ind = st.session_state.get("sel_ind", "All")
-                share_url = f"http://localhost:8501/?uni={uni}&prog={prog}&role={role}&ind={ind}"
+                grad = st.session_state.get("sel_grad", "All")
+                start = st.session_state.get("sel_start", "All")
+                share_url = f"http://localhost:8501/?uni={uni}&prog={prog}&role={role}&ind={ind}&grad={grad}&start={start}"
                 st.query_params["uni"] = uni
                 st.query_params["prog"] = prog
                 st.query_params["role"] = role
                 st.query_params["ind"] = ind
+                st.query_params["grad"] = grad
+                st.query_params["start"] = start
                 st.toast("Link copied to clipboard! Ready to share.", icon="✅")
                 st.info(f"Share link: `{share_url}`")

@@ -15,10 +15,12 @@ def render_hard_vs_soft_skills(hard_soft_data):
             </div>
             <div style="font-size: 11px; color: #64748b; margin-bottom: 12px;">72% of skill ecosystem (Average 8.1 per profile)</div>
         ''', unsafe_allow_html=True)
-        for item in hard_items[:6]:
+        hard_palette = ["#2563eb", "#0ea5e9", "#f97316", "#14b8a6", "#6366f1", "#ef4444"]
+        for idx, item in enumerate(hard_items[:6]):
             rank, name = item["rank"], item["skill_name"]
             cnt, pct, end = item["count"], item["percentage"], item["endorsements"]
-            badge, color = item["demand_badge"], item["bar_color"]
+            badge = item["demand_badge"]
+            color = hard_palette[idx % len(hard_palette)]
             badge_color = "#dc2626" if "Deficit" in badge else ("#d97706" if "Surging" in badge else "#1d4ed8")
             st.markdown(f'''
             <div style="margin-bottom: 8px;">
@@ -31,12 +33,7 @@ def render_hard_vs_soft_skills(hard_soft_data):
                 </div>
             </div>
             ''', unsafe_allow_html=True)
-        st.markdown('''
-            <div style="text-align: right; margin-top: 8px;">
-                <span style="color: #1d4ed8; font-size: 11px; font-weight: 600; cursor: pointer;">View Top 10 Hard Skills &rarr;</span>
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     with c_soft:
         st.markdown('''
         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px;">
@@ -46,10 +43,12 @@ def render_hard_vs_soft_skills(hard_soft_data):
             </div>
             <div style="font-size: 11px; color: #64748b; margin-bottom: 12px;">28% of skill ecosystem (Average 3.2 per profile)</div>
         ''', unsafe_allow_html=True)
-        for item in soft_items[:6]:
+        soft_palette = ["#10b981", "#7c3aed", "#ec4899", "#f59e0b", "#06b6d4", "#8b5cf6"]
+        for idx, item in enumerate(soft_items[:6]):
             rank, name = item["rank"], item["skill_name"]
             cnt, pct, end = item["count"], item["percentage"], item["endorsements"]
-            badge, color = item["demand_badge"], item["bar_color"]
+            badge = item["demand_badge"]
+            color = soft_palette[idx % len(soft_palette)]
             badge_color = "#16a34a" if "Universal" in badge or "High" in badge else ("#d97706" if "Surging" in badge else "#64748b")
             st.markdown(f'''
             <div style="margin-bottom: 8px;">
@@ -62,12 +61,7 @@ def render_hard_vs_soft_skills(hard_soft_data):
                 </div>
             </div>
             ''', unsafe_allow_html=True)
-        st.markdown('''
-            <div style="text-align: right; margin-top: 8px;">
-                <span style="color: #be185d; font-size: 11px; font-weight: 600; cursor: pointer;">View Top 10 Soft Skills &rarr;</span>
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def render_skills_distribution_by_category(skills_dist_data):
     """Render Ecosystem View Sisi Kiri (Horizontal Stacked Bar) - English UI."""

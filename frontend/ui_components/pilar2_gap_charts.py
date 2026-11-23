@@ -67,7 +67,7 @@ def render_trending_gap_table(gap_data):
         <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc; color: #475569; text-align: left; font-size: 10.5px; text-transform: uppercase;">
             <th style="padding: 7px 9px;">No</th><th>Skill Name</th><th>Skill Type</th>
             <th>Alumni Frequency</th><th>30d Trend</th><th>Market Gap Analysis (Supply vs Demand)</th>
-            <th>Target Career Roles</th><th style="text-align: right; padding-right: 10px;">Action</th>
+            <th>Target Career Roles</th>
         </tr>'''
     rows_html = ""
     for it in items:
@@ -84,7 +84,6 @@ def render_trending_gap_table(gap_data):
             <td style="color: #16a34a; font-weight: 600;">&blacktriangle; +{it["trend_30d_pct"]}%</td>
             <td><span style="background: {gap_bg}; color: {gap_color}; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10.5px;">{it["gap_score"]:+.1f}% ({it["gap_status"]})</span></td>
             <td style="color: #475569; font-size: 11px;">{roles_str}</td>
-            <td style="text-align: right; padding-right: 10px;"><span style="color: #1d4ed8; font-weight: 600; cursor: pointer; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; font-size: 10px;">Explore &rarr;</span></td>
         </tr>'''
     st.markdown(header_html + rows_html + "</table>", unsafe_allow_html=True)
 
@@ -115,104 +114,147 @@ def render_insights_cards(gap_data, mode="ranking"):
             </div>
             ''', unsafe_allow_html=True)
 
-def render_skills_comparison(comparison_data):
+def render_skills_comparison(
+    api_client,
+    study_program=None,
+    target_role=None,
+    industry=None,
+    graduation_year=None,
+    starting_role=None
+):
     """
-    Render Tab 2: Skills Comparison View (Side-by-Side 3 Kolom Berdampingan).
-    Fitur Lengkap: Sub-Header 6 Checkbox Universitas, Kotak Merah Metrik Mikro,
+    Render Tab 2: Skills Comparison View (Side-by-Side Dinamis Multi-Universitas).
+    Fitur Lengkap: Sub-Header 6 Checkbox Universitas, Metrik Mikro,
     Top Hard Skills dengan Integrasi Benchmark Pasar, Top Soft Skills,
     Signature Skills (+ vs Cohort), dan 4 Kartu Executive Takeaways.
     """
 
     st.markdown('''
-    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px;">
         <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">Compare observed skills &amp; benchmark alignment</div>
-        <div style="font-size: 11px; color: #64748b; margin-bottom: 8px;">Select 2–3 universities. Cohort filters apply.</div>
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 4px;">Select 2–6 universities to compare side-by-side. Cohort filters apply.</div>
     </div>
     ''', unsafe_allow_html=True)
 
-    cb_cols = st.columns(6)
     all_unis = [
         "Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung",
         "Institut Teknologi Sepuluh Nopember", "Universitas Airlangga", "BINUS University"
     ]
     selected_unis = []
     defaults = ["Universitas Gadjah Mada", "Universitas Indonesia", "Institut Teknologi Bandung"]
-    for idx, (col, u_name) in enumerate(zip(cb_cols, all_unis)):
+    row1_cols = st.columns(3)
+    row2_cols = st.columns(3)
+    grid_cols = row1_cols + row2_cols
+    for idx, (col, u_name) in enumerate(zip(grid_cols, all_unis)):
         with col:
             chk = st.checkbox(u_name, value=(u_name in defaults), key=f"cb_univ_{idx}")
             if chk:
                 selected_unis.append(u_name)
+
     if len(selected_unis) < 2:
         st.warning("Please select at least 2 universities to compare.")
-        selected_unis = defaults[:2]
+        if not selected_unis:
+            selected_unis = defaults[:2]
+
+    comparison_data, _ = api_client.fetch_skills_comparison(
+        selected_unis,
+        study_program=study_program,
+        target_role=target_role,
+        industry=industry,
+        graduation_year=graduation_year,
+        starting_role=starting_role
+    )
     cards_data = comparison_data.get("comparison_cards", [])
-    active_cards = [c for c in cards_data if c["university_name"] in selected_unis][:3]
+    active_cards = [c for c in cards_data if c["university_name"] in selected_unis]
 
-    cols = st.columns(len(active_cards))
-    for col, card in zip(cols, active_cards):
-        u_name = card["university_name"]
-        m = card["micro_summary"]
-        h_skills = card.get("top_hard_skills", [])
-        s_skills = card.get("top_soft_skills", [])
-        sigs = card.get("signature_skills", [])
-        with col:
+    for row_start in range(0, len(active_cards), 3):
+        row_cards = active_cards[row_start:row_start + 3]
+        cols = st.columns(3)
+        for col, card in zip(cols, row_cards):
+            u_name = card["university_name"]
+            m = card["micro_summary"]
+            h_skills = card.get("top_hard_skills", [])
+            s_skills = card.get("top_soft_skills", [])
+            sigs = card.get("signature_skills", [])
+            with col:
+                align_badge = (
+                    f'<span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">{m["market_alignment_label"]}</span>'
+                    if m["market_alignment_label"] in ["Leader", "High"]
+                    else f'<span style="background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">{m["market_alignment_label"]}</span>'
+                )
 
-            st.markdown(f'''
-            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; flex-direction: column;">
-                <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
-                    {u_name}
-                </div>
-            ''', unsafe_allow_html=True)
+                hard_palette = ["#2563eb", "#0ea5e9", "#f97316", "#14b8a6", "#6366f1"]
+                hard_html = ""
+                if not h_skills:
+                    hard_html = '<div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">No matched hard skills for current filters</div>'
+                for h_idx, h in enumerate(h_skills[:5]):
+                    h_bar_color = hard_palette[h_idx % len(hard_palette)]
+                    bg_badge = (
+                        "#dcfce7; color: #166534;" if h["badge_type"] == "safe"
+                        else ("#fee2e2; color: #991b1b;" if h["badge_type"] == "deficit"
+                              else ("#fef3c7; color: #92400e;" if h["badge_type"] == "gap" else "#f1f5f9; color: #475569;"))
+                    )
+                    hard_html += f'''
+                    <div style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+                            <span style="color: #1e293b; font-weight: 500;">{h["rank"]}. {h["skill_name"]}</span>
+                            <span style="font-size: 10.5px; color: #64748b;">{h["count"]} ({h["percentage"]}%) <span style="background: {bg_badge} font-size: 9.5px; padding: 1px 5px; border-radius: 3px; font-weight: 600;">{h["demand_badge"]}</span></span>
+                        </div>
+                        <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;">
+                            <div style="width: {h['percentage']}%; height: 100%; background: {h_bar_color}; border-radius: 2px;"></div>
+                        </div>
+                    </div>'''
 
-            align_badge = f'<span style="background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">{m["market_alignment_label"]}</span>' if m["market_alignment_label"] in ["Leader", "High"] else f'<span style="background: #f1f5f9; color: #475569; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 4px;">{m["market_alignment_label"]}</span>'
-            st.markdown(f'''
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 11.5px;">
-                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Matched alumni</span><span style="font-weight: 600;">{m["matched_alumni"]}</span></div>
-                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Skill type ratio (H:S)</span><span style="font-weight: 600;">{m["skill_type_ratio"]}</span></div>
-                <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #64748b;">Market Alignment</span><span style="font-weight: 600;">{m["market_alignment_pct"]}% {align_badge}</span></div>
-                <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Highest Skill Velocity</span><span style="font-weight: 600; colo
-                r: #0f172a;">{m["highest_velocity_skill"]}</span></div>
-            </div>
-            ''', unsafe_allow_html=True)
+                soft_palette = ["#7c3aed", "#10b981", "#ec4899", "#f59e0b"]
+                soft_html = ""
+                if not s_skills:
+                    soft_html = '<div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">No matched soft skills for current filters</div>'
+                for s_idx, s in enumerate(s_skills[:4]):
+                    s_bar_color = soft_palette[s_idx % len(soft_palette)]
+                    soft_html += f'''
+                    <div style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
+                            <span style="color: #1e293b; font-weight: 500;">{s["rank"]}. {s["skill_name"]}</span>
+                            <span style="font-size: 10.5px; color: #64748b;">{s["count"]} ({s["percentage"]}%)</span>
+                        </div>
+                        <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;">
+                            <div style="width: {s['percentage']}%; height: 100%; background: {s_bar_color}; border-radius: 2px;"></div>
+                        </div>
+                    </div>'''
 
-            st.markdown('<div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-bottom: 8px;">Top Hard Skills &middot; Market Benchmark</div>', unsafe_allow_html=True)
-            for h in h_skills[:5]:
-                bg_badge = "#dcfce7; color: #166534;" if h["badge_type"] == "safe" else ("#fee2e2; color: #991b1b;" if h["badge_type"] == "deficit" else ("#fef3c7; color: #92400e;" if h["badge_type"] == "gap" else "#f1f5f9; color: #475569;"))
-                st.markdown(f'''
-                <div style="margin-bottom: 8px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
-                        <span style="color: #1e293b; font-weight: 500;">{h["rank"]}. {h["skill_name"]}</span>
-                        <span style="font-size: 10.5px; color: #64748b;">{h["count"]} ({h["percentage"]}%) <span style="background: {bg_badge} font-size: 9.5px; padding: 1px 5px; border-radius: 3px; font-weight: 600;">{h["demand_badge"]}</span></span>
+                sig_html = ""
+                if not sigs:
+                    sig_html = '<div style="font-size: 11px; color: #94a3b8;">-</div>'
+                for sig in sigs[:2]:
+                    sig_html += f'''
+                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
+                        <span style="color: #1e293b; font-weight: 500;">{sig["skill_name"]}</span>
+                        <span style="color: #16a34a; font-weight: 600; font-size: 11px;">{sig["diff_pct"]}</span>
+                    </div>'''
+
+                card_html = f'''
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 14px; display: flex; flex-direction: column;">
+                    <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;">
+                        {u_name}
                     </div>
-                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;">
-                        <div style="width: {h['percentage']}%; height: 100%; background: #2563eb; border-radius: 2px;"></div>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; font-size: 11.5px;">
+                        <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Matched alumni</span><span style="font-weight: 600;">{m["matched_alumni"]}</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Skill type ratio (H:S)</span><span style="font-weight: 600;">{m["skill_type_ratio"]}</span></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: #64748b;">Market Alignment</span><span style="font-weight: 600;">{m["market_alignment_pct"]}% {align_badge}</span></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="color: #64748b;">Highest Skill Velocity</span><span style="font-weight: 600; color: #0f172a;">{m["highest_velocity_skill"]}</span></div>
+                    </div>
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-bottom: 8px;">Top Hard Skills &middot; Market Benchmark</div>
+                    {hard_html}
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-top: 12px; margin-bottom: 8px;">Top Soft Skills</div>
+                    {soft_html}
+                    <div style="border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 10px;">
+                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; margin-bottom: 6px;">Signature Skills (vs Cohort)</div>
+                        {sig_html}
                     </div>
                 </div>
-                ''', unsafe_allow_html=True)
-
-            st.markdown('<div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: #475569; margin-top: 12px; margin-bottom: 8px;">Top Soft Skills</div>', unsafe_allow_html=True)
-            for s in s_skills[:4]:
-                st.markdown(f'''
-                <div style="margin-bottom: 8px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 2px;">
-                        <span style="color: #1e293b; font-weight: 500;">{s["rank"]}. {s["skill_name"]}</span>
-                        <span style="font-size: 10.5px; color: #64748b;">{s["count"]} ({s["percentage"]}%)</span>
-                    </div>
-                    <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;">
-                        <div style="width: {s['percentage']}%; height: 100%; background: #7c3aed; border-radius: 2px;"></div>
-                    </div>
-                </div>
-                ''', unsafe_allow_html=True)
-
-            st.markdown('<div style="border-top: 1px dashed #e2e8f0; padding-top: 10px; margin-top: 10px;"><div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #475569; margin-bottom: 6px;">Signature Skills (vs Cohort)</div>', unsafe_allow_html=True)
-            for sig in sigs[:2]:
-                st.markdown(f'''
-                <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px;">
-                    <span style="color: #1e293b; font-weight: 500;">{sig["skill_name"]}</span>
-                    <span style="color: #16a34a; font-weight: 600; font-size: 11px;">{sig["diff_pct"]}</span>
-                </div>
-                ''', unsafe_allow_html=True)
-            st.markdown('</div></div>', unsafe_allow_html=True)
+                '''
+                card_html = "\n".join(line.strip() for line in card_html.splitlines() if line.strip())
+                st.markdown(card_html, unsafe_allow_html=True)
 
     st.markdown('<div style="margin-top: 18px;"></div>', unsafe_allow_html=True)
     t_cols = st.columns(4)
