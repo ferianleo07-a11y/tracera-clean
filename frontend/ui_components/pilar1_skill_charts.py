@@ -113,9 +113,8 @@ def render_skills_distribution_by_category(skills_dist_data):
     fig.update_yaxes(tickfont=dict(size=9, color="#1e293b", weight="bold"))
     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     st.markdown('''
-        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-top: 4px;">
-            <span>Showing accumulated skill entries across profiles</span>
-            <span style="color: #1d4ed8; cursor: pointer; font-weight: 600;">Open full taxonomy &rarr;</span>
+        <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+            Showing accumulated skill entries across profiles
         </div>
     </div>
     ''', unsafe_allow_html=True)

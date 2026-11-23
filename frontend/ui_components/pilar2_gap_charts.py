@@ -32,7 +32,7 @@ def render_skill_network_graph(network_data):
         x=node_x, y=node_y, mode='markers+text',
         marker=dict(size=node_size, color=node_color, line=dict(width=1.8, color='#ffffff')),
         text=node_text, textposition='middle center',
-        textfont=dict(size=8.5, color='#ffffff', family='Arial Black'),
+        textfont=dict(size=8.5, color='#0f172a', family='Arial Black'),
         hoverinfo='text', hovertext=hover_text
     ))
     fig.update_layout(
@@ -71,10 +71,10 @@ def render_trending_gap_table(gap_data):
         </tr>'''
     rows_html = ""
     for it in items:
-        # Palet warna lembut senada badge Mock dataset (tidak terlalu mencolok)
+        # Badge Skill Type: diselaraskan dengan warna badge Top 6 Rank (Hard Skills: #eff6ff / #1d4ed8, Soft Skills: #fdf2f8 / #be185d)
         badge_type = (
-            "background: #edf1fa; color: #2c3852;" if "Hard" in it["skill_type"]
-            else ("background: #f8eff2; color: #694a55;" if "Soft" in it["skill_type"]
+            "background: #eff6ff; color: #1d4ed8;" if "Hard" in it["skill_type"]
+            else ("background: #fdf2f8; color: #be185d;" if "Soft" in it["skill_type"]
             else "background: #f1f5f9; color: #475569;")
         )
         gap_color = "#dc2626" if "Critical" in it["gap_status"] or "Shortage" in it["gap_status"] else ("#d97706" if "Moderate" in it["gap_status"] else "#16a34a")
