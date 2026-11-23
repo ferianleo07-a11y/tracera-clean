@@ -20,10 +20,22 @@ def render_cohort_filters(filter_options):
     if "sel_start" not in st.session_state:
         st.session_state["sel_start"] = st.query_params.get("start", "All")
 
+    # Cohort filters button / pill dengan icon slider SVG persis Gambar 2
     st.markdown(
         """
-        <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 4px; margin-bottom: 6px;">
-            Cohort filters
+        <div style="display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12.5px; font-weight: 600; color: #1e293b; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03); margin-top: 4px; margin-bottom: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="21" y1="4" x2="14" y2="4"></line>
+                <line x1="10" y1="4" x2="3" y2="4"></line>
+                <line x1="21" y1="12" x2="12" y2="12"></line>
+                <line x1="8" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="20" x2="16" y2="20"></line>
+                <line x1="12" y1="20" x2="3" y2="20"></line>
+                <line x1="14" y1="1" x2="14" y2="7"></line>
+                <line x1="8" y1="9" x2="8" y2="15"></line>
+                <line x1="16" y1="17" x2="16" y2="23"></line>
+            </svg>
+            <span>Cohort filters</span>
         </div>
         """,
         unsafe_allow_html=True
@@ -42,7 +54,9 @@ def render_cohort_filters(filter_options):
         st.selectbox("Study program", progs, index=idx_prog, key="sel_prog")
     with c3:
         st.selectbox("Target role", roles, index=idx_role, key="sel_role")
-    with st.expander("+ More filters", expanded=True):
+
+    # Expander "More filters" (tanda '+' dihilangkan sesuai Gambar 2)
+    with st.expander("More filters", expanded=True):
         m1, m2, m3, m4 = st.columns(4)
         with m1:
             grads = ["All"] + [str(g) for g in filter_options.get("graduation_years", []) if str(g) != "All"]
@@ -59,6 +73,7 @@ def render_cohort_filters(filter_options):
         with m4:
             st.selectbox("Career level", ["All", "Entry-Level", "Mid-Senior", "Executive"], key="filter_lvl")
     st.markdown("<hr style='border: none; border-top: 1px solid #f1f5f9; margin: 10px 0 14px 0;'/>", unsafe_allow_html=True)
+
 def render_kpi_metric_cards(kpi_data):
     """Render 4 Borderless KPI Metric Cards (English)."""
     k1, k2, k3, k4 = st.columns(4)

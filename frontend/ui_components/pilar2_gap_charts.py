@@ -71,7 +71,12 @@ def render_trending_gap_table(gap_data):
         </tr>'''
     rows_html = ""
     for it in items:
-        badge_type = "#dbeafe; color: #1e40af;" if "Hard" in it["skill_type"] else ("#fce7f3; color: #be185d;" if "Soft" in it["skill_type"] else "#f3e8ff; color: #7e22ce;")
+        # Palet warna lembut senada badge Mock dataset (tidak terlalu mencolok)
+        badge_type = (
+            "background: #edf1fa; color: #2c3852;" if "Hard" in it["skill_type"]
+            else ("background: #f8eff2; color: #694a55;" if "Soft" in it["skill_type"]
+            else "background: #f1f5f9; color: #475569;")
+        )
         gap_color = "#dc2626" if "Critical" in it["gap_status"] or "Shortage" in it["gap_status"] else ("#d97706" if "Moderate" in it["gap_status"] else "#16a34a")
         gap_bg = "#fef2f2" if "Critical" in it["gap_status"] or "Shortage" in it["gap_status"] else ("#fffbeb" if "Moderate" in it["gap_status"] else "#f0fdf4")
         roles_str = ", ".join(it["target_roles"])
@@ -79,8 +84,8 @@ def render_trending_gap_table(gap_data):
         <tr style="border-bottom: 1px solid #f1f5f9;">
             <td style="padding: 7px 9px; font-weight: 600; color: #94a3b8;">{it["no"]}</td>
             <td style="font-weight: 600; color: #0f172a;">{it["skill_name"]}</td>
-            <td><span style="background: {badge_type} padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600;">{it["skill_type"]}</span></td>
-             <td style="color: #334155;">{it["alumni_count"]} alumni ({it["alumni_pct"]}%)</td>
+            <td><span style="{badge_type} padding: 2.5px 8px; border-radius: 9999px; font-size: 10.5px; font-weight: 600;">{it["skill_type"]}</span></td>
+            <td style="color: #334155;">{it["alumni_count"]} alumni ({it["alumni_pct"]}%)</td>
             <td style="color: #16a34a; font-weight: 600;">&blacktriangle; +{it["trend_30d_pct"]}%</td>
             <td><span style="background: {gap_bg}; color: {gap_color}; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10.5px;">{it["gap_score"]:+.1f}% ({it["gap_status"]})</span></td>
             <td style="color: #475569; font-size: 11px;">{roles_str}</td>
@@ -270,6 +275,7 @@ def render_skills_comparison(
                 <div style="font-size: 11px; color: {desc_color}; line-height: 1.4;">{t["description"]}</div>
             </div>
             ''', unsafe_allow_html=True)
+
 def render_skill_details(dashboard_data):
     """Komponen Tab 3: Skill Details (Preview Antarmuka Frontend - English UI)."""
     selected_skill = st.selectbox("Select Skill for In-depth Analysis:", [
